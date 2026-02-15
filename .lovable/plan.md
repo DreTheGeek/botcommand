@@ -1,133 +1,165 @@
 
 
-# NEXUS - LaSean's Bot Empire Control Center
+# Build All Bot Deep Dives, Hub Pages, and Fix Bot Names
 
-## Phase 1: Foundation & Main Dashboard
-Set up the core design system, layout, and main dashboard page.
-
-### Design System & Theme
-- Dark mode default with custom color palette (deep navy/black gradients, electric teal & cyber purple accents)
-- Light mode toggle with theme context
-- Custom fonts: Inter for UI, JetBrains Mono for data
-- Animated gradient background with subtle particle effect
-- Alert color system (red/yellow/green/blue)
-
-### Layout Shell
-- Top navigation bar with NEXUS logo, global search bar, notification bell with badge, theme toggle, and profile dropdown
-- Collapsible sidebar with all 13 navigation items (main sections + bot deep dives)
-- Smooth collapse/expand animation, icons-only when collapsed
-
-### Main Dashboard (Landing Page)
-- **Bot Status Grid**: 6 cards (2x3 grid) showing each bot's name, icon, description, status dot, key metric, and "View Details" button
-- **Revenue Dashboard**: Today's total revenue with breakdown by source (Property, Trading, Sales, Dropshipping), pipeline total, month-to-date comparison
-- **Alert Center**: Notification panel with filter tabs (All/Urgent/Action/Wins), latest 5 alerts with colored dots, bot icons, timestamps
-- **Quick Stats Bar**: 4 metric cards (Active Deals, Open Positions, Content Scheduled, System Health)
-- **Today's Focus**: Priority checklist with 5 action items, checkboxes, bot icons, urgency indicators
-
-### Global Features
-- Notification dropdown from bell icon with filters, mark-all-read, scrollable list
-- Global search with categorized real-time results (Properties, Prospects, Trades, Content, Products)
-- Auto-refresh every 60 seconds with "Updated X seconds ago" indicator
-- Mock data layer structured to match future Supabase schema
+This is a large build covering 18+ new files: 6 bot pages, 6 hub/system pages, expanded mock data, shared layout component, and routing updates.
 
 ---
 
-## Phase 2: Bot Deep Dive Pages (Part 1)
+## 1. Fix Bot Names (2 files)
 
-### Ronnie Realty - Property Bot
-- **Overview tab**: 4 metric cards + interactive US map with color-coded property markers and click-to-view details
-- **Deal Pipeline tab**: Sortable/filterable data table with color-coded rows, click-to-expand modal with full property analysis, pagination, CSV export
-- **Calendar tab**: Monthly view with tax sale dates highlighted, click date for details, county filter
-- **Analytics tab**: Line chart (deals over time), bar chart (profit by county), histogram (deal scores), metrics grid
-- **My Purchases tab**: Purchase tracking table with status management
-- **Settings tab**: Deal criteria config, county management, bot controls
+**`src/data/mockData.ts`**
+- "Trading Bot" -> "Tammy Trader"
+- "Deondre" -> "Deondre Dropshipping"
+- "Carter" -> "Carter Content"
 
-### Ana Sales - Sales Bot
-- **Pipeline tab**: Draggable Kanban board (Lead → Qualified → Proposal → Negotiating → Won/Lost), color-coded cards with deal details, click for full prospect modal
-- **Proposals tab**: Table with engagement scores, click for proposal analytics with view heatmap
-- **Activity Log tab**: Timeline of all interactions (calls, emails, meetings), filterable
-- **Analytics tab**: Conversion funnel visualization, revenue charts, deal size distribution, top performers
-- **Settings tab**: Template management, email sequences, bot controls
-
-### Trading Bot
-- **Dashboard tab**: Large P&L display with time period tabs, account balance chart, quick stats (win rate, Sharpe ratio, max drawdown), recent trades
-- **Open Positions tab**: Live positions table with P&L, click for trade details with chart markup
-- **Trade History tab**: Searchable/filterable trade log with CSV export
-- **Strategies tab**: Performance comparison table, click for detailed strategy breakdown
-- **Risk Monitor tab**: Circular gauge indicators for daily loss limit, position count, trade count, buying power display, risk rules checklist
-- **Settings tab**: Risk parameters display, trading controls, symbol analyzer
+**`src/components/layout/AppSidebar.tsx`**
+- "Ana Sales" -> "Ana Sales Analyst"
+- "Trading Bot" -> "Tammy Trader"
+- "Deondre" -> "Deondre Dropshipping"
+- "Carter" -> "Carter Content"
 
 ---
 
-## Phase 3: Bot Deep Dive Pages (Part 2)
+## 2. Expand Mock Data (`src/data/mockData.ts`)
 
-### Rhianna Research - Intelligence Bot
-- **Today's Brief tab**: Formatted daily intelligence report with expandable sections (Top Insights, Opportunities, Threats, Content Ideas, Recommended Actions)
-- **Opportunities tab**: Card grid of detected business problems with source links, deal size estimates, "Send to Ana" action button
-- **Competitors tab**: Tracked competitor cards with threat level gauges, detailed competitor profiles
-- **Trends tab**: Emerging trends with scores, monetization potential, stage indicators (Emerging/Growing/Mainstream)
-- **Content Ideas tab**: Generated topics with platform recommendations, "Send to Carter" button
-- **Settings tab**: Source monitoring config, alert thresholds, scan frequency
+Add typed interfaces and arrays for every bot's domain data:
 
-### Deondre - Dropshipping Bot
-- **Products tab**: Product card grid with status badges, ROAS indicators, click for full metrics and charts
-- **Performance tab**: Revenue dashboard with time tabs, performance table with quick Kill/Scale actions
-- **Ad Campaigns tab**: Campaign table with creative previews, audience targeting, budget controls
-- **Suppliers tab**: Supplier cards with ratings, ship times, quality scores
-- **Settings tab**: Product criteria, ROAS thresholds, bot controls
-
-### Carter - Content Engine Bot
-- **Calendar tab**: Weekly/monthly content calendar color-coded by platform, drag to reschedule, schedule post form
-- **Performance tab**: Weekly overview cards, platform comparison charts, top posts grid with click-through analytics
-- **Platform Stats tab**: Individual platform cards (YouTube, TikTok, X, Instagram, LinkedIn, Facebook) with metrics and trend arrows
-- **Content Library tab**: Searchable content grid with thumbnails, filters, "Repurpose" button
-- **Settings tab**: Posting schedule, content pillars, AI avatar config, bot controls
+- **Ronnie**: properties (10 items with address, county, state, saleDate, minBid, arv, netProfit, dealScore, status, beds, baths, sqft), purchases (4 items with status tracking)
+- **Ana**: prospects (8 items with pipeline stages), proposals (5 items with engagement), activities (10 items: calls/emails/meetings)
+- **Tammy**: trades (15 historical), openPositions (3), strategies (3: Day/Swing/Long-term), riskData (gauges)
+- **Rhianna**: dailyBrief (expandable sections), opportunities (6), competitors (4 with threat levels), trends (5 with stages), contentIdeas (4)
+- **Deondre**: products (6 with ROAS), campaigns (4), suppliers (3 with ratings)
+- **Carter**: scheduledContent (10 posts), platformStats (6 platforms), contentLibrary (8 items)
+- **Revenue Hub**: monthlyRevenue (6 months), revenueTargets
+- **Calendar**: calendarEvents (combined from all bots)
 
 ---
 
-## Phase 4: Hub Pages & Settings
+## 3. Shared Bot Page Layout
 
-### Revenue Hub
-- Revenue breakdown pie chart by source
-- Monthly comparison bar chart (last 6 months)
-- Active opportunities cards with total pipeline value
-- Revenue trend line chart
-- Monthly target tracker with progress bar and daily revenue needed calculation
-
-### Unified Calendar
-- Monthly calendar combining all bot events, color-coded by bot type
-- Filter checkboxes to show/hide each bot's events
-- Click event to navigate to source
-
-### Analytics Hub
-- Cross-bot performance comparison table
-- Revenue attribution by bot
-- Attention indicators for underperforming bots
-- Custom date range selector
-- Export report button
-
-### Raw Data Access
-- Table selector dropdown
-- Full data grid with sort, filter, pagination, search
-- CSV export
-- SQL query builder with execute and results display
-- Database health monitor
-
-### Settings Page
-- System Monitoring: Deployment status, workflow status, API usage meters
-- Integrations: Google Drive, n8n workflow triggers and logs
-- Notifications: Alert type config, channel preferences, thresholds
-- Display: Theme, refresh interval, default time range, sidebar defaults
-- Bot Configuration: Links to each bot's settings, global emergency stop
-- User Profile: Info display, full data export
+**New file: `src/components/bots/BotPageLayout.tsx`**
+- Reusable wrapper accepting bot ID, tab definitions, and children
+- Header with bot icon, name, description, status indicator
+- Shadcn Tabs component for tab navigation
+- Framer Motion page entrance animation
+- Consistent card styling matching dashboard
 
 ---
 
-## Data & Technical Details
-- All mock data structured to match future Supabase schema (bots, notifications, revenue, tasks, properties, prospects, trades, products, content, competitors, trends)
-- Proper money formatting ($XX,XXX), percentages (X.X%), dates (MMM DD, YYYY), time-ago strings, K/M notation
-- React Query for data fetching with 60-second auto-refresh
-- Skeleton loaders for loading states, toast notifications for errors
-- Framer Motion for page transitions, card animations, and hover effects
-- Responsive: desktop-optimized (1440px+), sidebar collapses on smaller screens, grid adapts to 2-col/1-col
+## 4. Six Bot Deep Dive Pages
+
+### Ronnie Realty (`src/pages/bots/RonnieRealty.tsx`)
+6 tabs: Overview | Deal Pipeline | Calendar | Analytics | My Purchases | Settings
+- Overview: 4 metric cards + simplified SVG US map with color-coded state dots
+- Deal Pipeline: Sortable data table with color-coded profit rows, click-to-expand Dialog with property details, CSV export button
+- Calendar: Monthly calendar with tax sale dates as colored dots
+- Analytics: Recharts line chart (deals over time), bar chart (profit by county), metrics grid
+- My Purchases: Table with status badges (Owned/Renovating/Listed/Sold)
+- Settings: Form fields for deal criteria, county management, bot pause/resume Switch
+
+### Ana Sales Analyst (`src/pages/bots/AnaSales.tsx`)
+5 tabs: Pipeline | Proposals | Activity | Analytics | Settings
+- Pipeline: Kanban-style board with 5 columns (Lead/Qualified/Proposal/Negotiating/Won-Lost), cards with deal info, click for prospect Dialog
+- Proposals: Table with engagement scores, status badges
+- Activity: Timeline with icons (phone/mail/calendar), filterable
+- Analytics: Recharts funnel-style bar chart, revenue chart, deal size pie chart, metric cards
+- Settings: Bot controls with Switch components
+
+### Tammy Trader (`src/pages/bots/TradingBot.tsx`)
+6 tabs: Dashboard | Open Positions | Trade History | Strategies | Risk Monitor | Settings
+- Dashboard: Large P&L with period tabs (Today/Week/Month), Recharts balance line chart, stats cards
+- Open Positions: Table with green/red P&L coloring
+- Trade History: Full searchable trade log, CSV export
+- Strategies: Comparison table for 3 strategies
+- Risk Monitor: 3 CSS circular gauges (daily loss, positions, trades), buying power, warning banner
+- Settings: Risk parameters display, pause/resume, paper trading toggle
+
+### Rhianna Research (`src/pages/bots/RhiannaResearch.tsx`)
+6 tabs: Today's Brief | Opportunities | Competitors | Trends | Content Ideas | Settings
+- Brief: Accordion sections (Insights, Opportunities, Threats, Content, Actions)
+- Opportunities: Card grid with tier badges, "Send to Ana" button with toast
+- Competitors: Cards with threat level progress bar (1-10)
+- Trends: Cards with stage badges (Emerging/Growing/Mainstream), scores
+- Content Ideas: Topic cards with platform icons, "Send to Carter" button
+- Settings: Source config, scan frequency, bot controls
+
+### Deondre Dropshipping (`src/pages/bots/DeondreDropshipping.tsx`)
+5 tabs: Products | Performance | Ad Campaigns | Suppliers | Settings
+- Products: 3-col card grid with status badges, ROAS coloring, click for details Dialog with Recharts chart
+- Performance: Revenue summary with period tabs, table with Kill/Scale buttons
+- Ad Campaigns: Campaign table with platform, budget, ROAS columns
+- Suppliers: Cards with star ratings, ship time, issues count
+- Settings: ROAS thresholds, bot controls
+
+### Carter Content (`src/pages/bots/CarterContent.tsx`)
+5 tabs: Calendar | Performance | Platform Stats | Content Library | Settings
+- Calendar: Weekly/monthly grid with platform-color-coded posts
+- Performance: Weekly overview cards, Recharts platform bar chart, top posts grid
+- Platform Stats: 6 cards (YouTube/TikTok/X/Instagram/LinkedIn/Facebook) with metrics, trend arrows
+- Content Library: Searchable grid with platform icons, performance metrics
+- Settings: Posting schedule, content pillars, bot controls
+
+---
+
+## 5. Hub and System Pages
+
+### Revenue Hub (`src/pages/RevenueHub.tsx`)
+- Recharts pie chart (revenue by source), monthly bar chart (6 months)
+- Pipeline cards, revenue trend line chart
+- Monthly target tracker with Progress component
+
+### Calendar Page (`src/pages/CalendarPage.tsx`)
+- Monthly calendar with all bot events color-coded
+- Filter checkboxes per bot, event detail on click
+
+### Analytics Hub (`src/pages/AnalyticsHub.tsx`)
+- Cross-bot performance table, revenue attribution bar chart
+- Date range selector, export button
+
+### Search Page (`src/pages/SearchPage.tsx`)
+- Full search with categorized results (Properties/Prospects/Trades/Content/Products)
+
+### Raw Data Page (`src/pages/RawData.tsx`)
+- Table selector dropdown, data grid with sort/filter
+- CSV export, SQL query textarea, database health cards
+
+### Settings Page (`src/pages/SettingsPage.tsx`)
+- System monitoring, notification config, display settings
+- Bot config links, emergency stop, user profile
+
+---
+
+## 6. Routing (`src/App.tsx`)
+
+Add all 12 routes:
+
+```text
+/               -> Index
+/revenue        -> RevenueHub
+/calendar       -> CalendarPage
+/analytics      -> AnalyticsHub
+/search         -> SearchPage
+/data           -> RawData
+/settings       -> SettingsPage
+/bots/ronnie    -> RonnieRealty
+/bots/ana       -> AnaSales
+/bots/trading   -> TradingBot
+/bots/rhianna   -> RhiannaResearch
+/bots/deondre   -> DeondreDropshipping
+/bots/carter    -> CarterContent
+```
+
+---
+
+## Technical Notes
+
+- All charts use Recharts (already installed)
+- All UI uses existing Shadcn components (Tabs, Table, Card, Dialog, Badge, Progress, Switch, Accordion, Select, Checkbox)
+- Framer Motion for page transitions and card animations
+- Money formatting: `$XX,XXX` with Intl.NumberFormat
+- Percentages to 1 decimal, dates as `MMM DD, YYYY`
+- No new dependencies needed
+- Dark mode compatible using existing CSS custom properties
+- Responsive grids: 3-col on desktop, 2-col on tablet, 1-col on mobile
 
