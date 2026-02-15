@@ -7,10 +7,20 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { bots } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, User, Bell, Monitor, Shield } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { AlertTriangle, User, Bell, Monitor, Shield, ExternalLink, MessageCircle, Github, HardDrive, Workflow, Database } from 'lucide-react';
+
+const integrations = [
+  { name: 'Telegram', icon: MessageCircle, status: 'not_connected', color: 'text-nexus-info', url: 'https://core.telegram.org/bots', description: 'Bot notifications & commands' },
+  { name: 'GitHub', icon: Github, status: 'connected', color: 'text-foreground', url: 'https://github.com', description: 'Code sync & deployments' },
+  { name: 'Google Drive', icon: HardDrive, status: 'not_connected', color: 'text-nexus-warning', url: 'https://drive.google.com', description: 'Document storage & sharing' },
+  { name: 'n8n Automation', icon: Workflow, status: 'not_connected', color: 'text-accent', url: 'https://n8n.io', description: 'Workflow triggers & webhooks' },
+  { name: 'Database', icon: Database, status: 'connected', color: 'text-nexus-success', url: null, description: 'Lovable Cloud backend' },
+];
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState({ urgent: true, action: true, win: true, info: false });
   const [emergencyStop, setEmergencyStop] = useState(false);
 
@@ -19,6 +29,38 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Integrations */}
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle className="text-base flex items-center gap-2"><Workflow className="h-4 w-4" />Integrations</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {integrations.map((intg) => (
+                <div key={intg.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-3">
+                    <intg.icon className={`h-5 w-5 ${intg.color}`} />
+                    <div>
+                      <p className="text-sm font-medium">{intg.name}</p>
+                      <p className="text-xs text-muted-foreground">{intg.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={intg.status === 'connected' ? 'default' : 'outline'} className="text-[10px]">
+                      {intg.status === 'connected' ? 'Connected' : 'Not Connected'}
+                    </Badge>
+                    {intg.url && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
+                        <a href={intg.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader><CardTitle className="text-base flex items-center gap-2"><Monitor className="h-4 w-4" />System Monitoring</CardTitle></CardHeader>
           <CardContent className="space-y-3">
@@ -81,7 +123,7 @@ export default function SettingsPage() {
           <CardHeader><CardTitle className="text-base flex items-center gap-2"><User className="h-4 w-4" />User Profile</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Name</span><span>LaSean</span></div>
-            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Email</span><span>lasean@nexus.ai</span></div>
+            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Email</span><span>{user?.email ?? 'Not logged in'}</span></div>
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Plan</span><Badge>Pro</Badge></div>
             <Button variant="outline" size="sm" className="w-full mt-2">Export All Data</Button>
           </CardContent>

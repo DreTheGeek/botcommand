@@ -5,6 +5,7 @@ import { RevenueDashboard } from '@/components/dashboard/RevenueDashboard';
 import { AlertCenter } from '@/components/dashboard/AlertCenter';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { TodaysFocus } from '@/components/dashboard/TodaysFocus';
+import { BotPerformanceChart } from '@/components/dashboard/BotPerformanceChart';
 
 const Index = () => {
   const [secondsAgo, setSecondsAgo] = useState(0);
@@ -44,6 +45,7 @@ const Index = () => {
         <AlertCenter />
       </div>
 
+      <BotPerformanceChart />
       <TodaysFocus />
     </div>
   );
