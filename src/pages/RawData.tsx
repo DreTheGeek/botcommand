@@ -64,7 +64,7 @@ export default function RawData() {
       </div>
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>{data.headers.map((h) => <TableHead key={h}>{h}</TableHead>)}</TableRow>

@@ -17,11 +17,11 @@ function PipelineTab() {
   const [selected, setSelected] = useState<typeof prospects[0] | null>(null);
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0">
         {stages.map((stage) => {
           const items = prospects.filter((p) => p.stage === stage);
           return (
-            <Card key={stage}>
+            <Card key={stage} className="min-w-[200px] snap-start lg:min-w-0">
               <CardHeader className="p-3 pb-1"><CardTitle className="text-xs font-medium">{stage} ({items.length})</CardTitle></CardHeader>
               <CardContent className="p-3 pt-1 space-y-2">
                 {items.map((p) => (
@@ -62,7 +62,7 @@ function ProposalsTab() {
   const statusColor: Record<string, string> = { Sent: 'secondary', Viewed: 'default', Accepted: 'destructive', Rejected: 'outline' };
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow><TableHead>Company</TableHead><TableHead>Sent</TableHead><TableHead className="text-right">Deal Size</TableHead><TableHead>Views</TableHead><TableHead>Engagement</TableHead><TableHead>Status</TableHead></TableRow>

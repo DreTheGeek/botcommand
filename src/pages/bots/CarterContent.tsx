@@ -17,7 +17,7 @@ function CalendarTab() {
   const statusColor: Record<string, string> = { Scheduled: 'default', Published: 'secondary', Draft: 'outline' };
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow><TableHead>Title</TableHead><TableHead>Platform</TableHead><TableHead>Scheduled</TableHead><TableHead>Status</TableHead><TableHead>Content</TableHead></TableRow>
@@ -104,7 +104,7 @@ function LibraryTab() {
         <Input placeholder="Search content..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
       </div>
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow><TableHead>Title</TableHead><TableHead>Platform</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Views</TableHead><TableHead className="text-right">Engagement</TableHead></TableRow>

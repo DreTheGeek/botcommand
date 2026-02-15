@@ -81,7 +81,7 @@ function PerformanceTab() {
         ))}
       </div>
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow><TableHead>Product</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Revenue</TableHead><TableHead className="text-right">ROAS</TableHead><TableHead>Actions</TableHead></TableRow>
@@ -110,7 +110,7 @@ function PerformanceTab() {
 function CampaignsTab() {
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow><TableHead>Product</TableHead><TableHead>Platform</TableHead><TableHead className="text-right">Budget</TableHead><TableHead className="text-right">Spend</TableHead><TableHead className="text-right">Revenue</TableHead><TableHead className="text-right">ROAS</TableHead><TableHead>CTR</TableHead><TableHead>Status</TableHead></TableRow>
