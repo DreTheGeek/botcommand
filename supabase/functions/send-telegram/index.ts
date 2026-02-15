@@ -15,6 +15,59 @@ const BOT_MAP: Record<string, { tokenKey: string; chatKey: string }> = {
   carter: { tokenKey: "TELEGRAM_CARTER_BOT_TOKEN", chatKey: "TELEGRAM_CARTER_CHAT_ID" },
 };
 
+async function getCrossBotContext(serviceClient: any, targetBotId: string, userId: string): Promise<string | null> {
+  try {
+    const { data: messages, error } = await serviceClient
+      .from("chat_messages")
+      .select("bot_id, direction, content, created_at")
+      .eq("user_id", userId)
+      .neq("bot_id", targetBotId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error || !messages || messages.length === 0) return null;
+
+    const formatted = messages
+      .reverse()
+      .map((m: any) => `[${m.bot_id}] (${m.direction}): ${m.content}`)
+      .join("\n");
+
+    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!apiKey) return null;
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Summarize the following cross-bot chat messages in 2-3 concise sentences. Focus on key decisions, action items, and topics being discussed. Be direct and factual.",
+          },
+          { role: "user", content: formatted },
+        ],
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      console.error("AI gateway error:", aiResponse.status, await aiResponse.text());
+      return null;
+    }
+
+    const aiResult = await aiResponse.json();
+    const summary = aiResult.choices?.[0]?.message?.content;
+    return summary || null;
+  } catch (err) {
+    console.error("Cross-bot context error:", err);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -72,8 +125,21 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Fetch cross-bot context using service role (bypasses RLS)
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const contextSummary = await getCrossBotContext(serviceClient, bot_id, userId as string);
+
+    // Build Telegram message: prepend context if available
+    let telegramText = message;
+    if (contextSummary) {
+      telegramText = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${message}`;
+    }
+
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    const body: Record<string, string> = { chat_id: chatId, text: message };
+    const body: Record<string, string> = { chat_id: chatId, text: telegramText };
     if (parse_mode) body.parse_mode = parse_mode;
 
     const tgResponse = await fetch(telegramUrl, {
@@ -91,7 +157,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Persist outgoing message to chat_messages
+    // Persist only the original message (without context) to chat_messages
     const { error: insertError } = await supabase.from("chat_messages").insert({
       user_id: userId,
       bot_id: bot_id,
@@ -104,7 +170,7 @@ Deno.serve(async (req) => {
       console.error("Failed to persist outgoing message:", insertError);
     }
 
-    return new Response(JSON.stringify({ success: true, bot_id }), {
+    return new Response(JSON.stringify({ success: true, bot_id, context_injected: !!contextSummary }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
