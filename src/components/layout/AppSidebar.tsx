@@ -36,11 +36,11 @@ const mainNav = [
 
 const botNav = [
   { title: 'Ronnie Realty', url: '/bots/ronnie', icon: Home },
-  { title: 'Ana Sales', url: '/bots/ana', icon: Briefcase },
-  { title: 'Trading Bot', url: '/bots/trading', icon: TrendingUp },
+  { title: 'Ana Sales Analyst', url: '/bots/ana', icon: Briefcase },
+  { title: 'Tammy Trader', url: '/bots/trading', icon: TrendingUp },
   { title: 'Rhianna Research', url: '/bots/rhianna', icon: Search },
-  { title: 'Deondre', url: '/bots/deondre', icon: ShoppingBag },
-  { title: 'Carter', url: '/bots/carter', icon: Video },
+  { title: 'Deondre Dropshipping', url: '/bots/deondre', icon: ShoppingBag },
+  { title: 'Carter Content', url: '/bots/carter', icon: Video },
 ];
 
 export function AppSidebar() {
