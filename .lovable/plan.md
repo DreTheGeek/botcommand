@@ -1,165 +1,101 @@
 
+# Full Authentication, Integrations, and Dashboard Enhancements
 
-# Build All Bot Deep Dives, Hub Pages, and Fix Bot Names
+## Overview
 
-This is a large build covering 18+ new files: 6 bot pages, 6 hub/system pages, expanded mock data, shared layout component, and routing updates.
-
----
-
-## 1. Fix Bot Names (2 files)
-
-**`src/data/mockData.ts`**
-- "Trading Bot" -> "Tammy Trader"
-- "Deondre" -> "Deondre Dropshipping"
-- "Carter" -> "Carter Content"
-
-**`src/components/layout/AppSidebar.tsx`**
-- "Ana Sales" -> "Ana Sales Analyst"
-- "Trading Bot" -> "Tammy Trader"
-- "Deondre" -> "Deondre Dropshipping"
-- "Carter" -> "Carter Content"
+This plan adds real authentication (only you can log in), an integrations panel in Settings, and interactive dashboard charts that link to each bot's analytics. It requires connecting to Lovable Cloud first.
 
 ---
 
-## 2. Expand Mock Data (`src/data/mockData.ts`)
+## Step 1: Connect to Lovable Cloud (Required First)
 
-Add typed interfaces and arrays for every bot's domain data:
+Before any auth work, we need to enable Lovable Cloud to get a Supabase backend. This gives us:
+- User authentication (email/password)
+- Database for any future data persistence
+- Edge functions for integrations
 
-- **Ronnie**: properties (10 items with address, county, state, saleDate, minBid, arv, netProfit, dealScore, status, beds, baths, sqft), purchases (4 items with status tracking)
-- **Ana**: prospects (8 items with pipeline stages), proposals (5 items with engagement), activities (10 items: calls/emails/meetings)
-- **Tammy**: trades (15 historical), openPositions (3), strategies (3: Day/Swing/Long-term), riskData (gauges)
-- **Rhianna**: dailyBrief (expandable sections), opportunities (6), competitors (4 with threat levels), trends (5 with stages), contentIdeas (4)
-- **Deondre**: products (6 with ROAS), campaigns (4), suppliers (3 with ratings)
-- **Carter**: scheduledContent (10 posts), platformStats (6 platforms), contentLibrary (8 items)
-- **Revenue Hub**: monthlyRevenue (6 months), revenueTargets
-- **Calendar**: calendarEvents (combined from all bots)
+**Action needed from you**: After approving this plan, we will enable Cloud and set up the database.
 
 ---
 
-## 3. Shared Bot Page Layout
+## Step 2: Authentication System
 
-**New file: `src/components/bots/BotPageLayout.tsx`**
-- Reusable wrapper accepting bot ID, tab definitions, and children
-- Header with bot icon, name, description, status indicator
-- Shadcn Tabs component for tab navigation
-- Framer Motion page entrance animation
-- Consistent card styling matching dashboard
+### Database Schema
+- **profiles table**: `id` (FK to auth.users), `display_name`, `email`, `created_at`
+- **user_roles table**: `user_id` (FK to auth.users), `role` (enum: admin/user)
+- RLS policies so only authenticated users can access data
+- Trigger to auto-create profile on signup
 
----
+### New Files
+- `src/pages/LoginPage.tsx` -- Clean login form with email/password, NEXUS branding, dark theme matching the dashboard aesthetic
+- `src/contexts/AuthContext.tsx` -- Auth provider wrapping the app with `onAuthStateChange` listener, session management, and a `useAuth()` hook
+- `src/components/ProtectedRoute.tsx` -- Wrapper component that redirects to `/login` if not authenticated
 
-## 4. Six Bot Deep Dive Pages
+### Changes to Existing Files
+- `src/App.tsx` -- Wrap routes with AuthProvider, add `/login` route, protect all other routes with ProtectedRoute
+- `src/components/layout/TopNav.tsx` -- Wire the "Sign Out" dropdown item to actually call `supabase.auth.signOut()`
+- `src/pages/SettingsPage.tsx` -- Show real user email from auth session instead of hardcoded "lasean@nexus.ai"
 
-### Ronnie Realty (`src/pages/bots/RonnieRealty.tsx`)
-6 tabs: Overview | Deal Pipeline | Calendar | Analytics | My Purchases | Settings
-- Overview: 4 metric cards + simplified SVG US map with color-coded state dots
-- Deal Pipeline: Sortable data table with color-coded profit rows, click-to-expand Dialog with property details, CSV export button
-- Calendar: Monthly calendar with tax sale dates as colored dots
-- Analytics: Recharts line chart (deals over time), bar chart (profit by county), metrics grid
-- My Purchases: Table with status badges (Owned/Renovating/Listed/Sold)
-- Settings: Form fields for deal criteria, county management, bot pause/resume Switch
-
-### Ana Sales Analyst (`src/pages/bots/AnaSales.tsx`)
-5 tabs: Pipeline | Proposals | Activity | Analytics | Settings
-- Pipeline: Kanban-style board with 5 columns (Lead/Qualified/Proposal/Negotiating/Won-Lost), cards with deal info, click for prospect Dialog
-- Proposals: Table with engagement scores, status badges
-- Activity: Timeline with icons (phone/mail/calendar), filterable
-- Analytics: Recharts funnel-style bar chart, revenue chart, deal size pie chart, metric cards
-- Settings: Bot controls with Switch components
-
-### Tammy Trader (`src/pages/bots/TradingBot.tsx`)
-6 tabs: Dashboard | Open Positions | Trade History | Strategies | Risk Monitor | Settings
-- Dashboard: Large P&L with period tabs (Today/Week/Month), Recharts balance line chart, stats cards
-- Open Positions: Table with green/red P&L coloring
-- Trade History: Full searchable trade log, CSV export
-- Strategies: Comparison table for 3 strategies
-- Risk Monitor: 3 CSS circular gauges (daily loss, positions, trades), buying power, warning banner
-- Settings: Risk parameters display, pause/resume, paper trading toggle
-
-### Rhianna Research (`src/pages/bots/RhiannaResearch.tsx`)
-6 tabs: Today's Brief | Opportunities | Competitors | Trends | Content Ideas | Settings
-- Brief: Accordion sections (Insights, Opportunities, Threats, Content, Actions)
-- Opportunities: Card grid with tier badges, "Send to Ana" button with toast
-- Competitors: Cards with threat level progress bar (1-10)
-- Trends: Cards with stage badges (Emerging/Growing/Mainstream), scores
-- Content Ideas: Topic cards with platform icons, "Send to Carter" button
-- Settings: Source config, scan frequency, bot controls
-
-### Deondre Dropshipping (`src/pages/bots/DeondreDropshipping.tsx`)
-5 tabs: Products | Performance | Ad Campaigns | Suppliers | Settings
-- Products: 3-col card grid with status badges, ROAS coloring, click for details Dialog with Recharts chart
-- Performance: Revenue summary with period tabs, table with Kill/Scale buttons
-- Ad Campaigns: Campaign table with platform, budget, ROAS columns
-- Suppliers: Cards with star ratings, ship time, issues count
-- Settings: ROAS thresholds, bot controls
-
-### Carter Content (`src/pages/bots/CarterContent.tsx`)
-5 tabs: Calendar | Performance | Platform Stats | Content Library | Settings
-- Calendar: Weekly/monthly grid with platform-color-coded posts
-- Performance: Weekly overview cards, Recharts platform bar chart, top posts grid
-- Platform Stats: 6 cards (YouTube/TikTok/X/Instagram/LinkedIn/Facebook) with metrics, trend arrows
-- Content Library: Searchable grid with platform icons, performance metrics
-- Settings: Posting schedule, content pillars, bot controls
+### Security
+- After initial deploy, you create your account via the login page (signup mode)
+- Then we disable signup so nobody else can register (via Supabase dashboard or edge function)
+- Only your email can access the system
 
 ---
 
-## 5. Hub and System Pages
+## Step 3: Integrations Panel in Settings
 
-### Revenue Hub (`src/pages/RevenueHub.tsx`)
-- Recharts pie chart (revenue by source), monthly bar chart (6 months)
-- Pipeline cards, revenue trend line chart
-- Monthly target tracker with Progress component
+Add a new "Integrations" card to `src/pages/SettingsPage.tsx` with:
 
-### Calendar Page (`src/pages/CalendarPage.tsx`)
-- Monthly calendar with all bot events color-coded
-- Filter checkboxes per bot, event detail on click
+- **Telegram** -- Link to Telegram bot setup, status indicator, webhook URL display
+- **GitHub** -- Link to connected repo, status badge
+- **Google Drive** -- Link to connected folder
+- **n8n / Automation** -- Webhook URL display for workflow triggers
+- **Supabase** -- Connection status, link to dashboard
 
-### Analytics Hub (`src/pages/AnalyticsHub.tsx`)
-- Cross-bot performance table, revenue attribution bar chart
-- Date range selector, export button
+Each integration shows:
+- Service name and icon
+- Connection status badge (Connected/Not Connected)
+- "Connect" or "Configure" button linking to the appropriate service
+- For Telegram: a field to store bot token (saved as Supabase secret)
 
-### Search Page (`src/pages/SearchPage.tsx`)
-- Full search with categorized results (Properties/Prospects/Trades/Content/Products)
-
-### Raw Data Page (`src/pages/RawData.tsx`)
-- Table selector dropdown, data grid with sort/filter
-- CSV export, SQL query textarea, database health cards
-
-### Settings Page (`src/pages/SettingsPage.tsx`)
-- System monitoring, notification config, display settings
-- Bot config links, emergency stop, user profile
+This keeps it clean -- real links and status displays, with the ability to add API keys for services that need them (like Telegram bot token) stored securely as Supabase secrets.
 
 ---
 
-## 6. Routing (`src/App.tsx`)
+## Step 4: Interactive Dashboard Charts
 
-Add all 12 routes:
+Enhance `src/pages/Index.tsx` and `src/components/dashboard/RevenueDashboard.tsx`:
 
-```text
-/               -> Index
-/revenue        -> RevenueHub
-/calendar       -> CalendarPage
-/analytics      -> AnalyticsHub
-/search         -> SearchPage
-/data           -> RawData
-/settings       -> SettingsPage
-/bots/ronnie    -> RonnieRealty
-/bots/ana       -> AnaSales
-/bots/trading   -> TradingBot
-/bots/rhianna   -> RhiannaResearch
-/bots/deondre   -> DeondreDropshipping
-/bots/carter    -> CarterContent
-```
+- Add a mini sparkline/bar chart to each bot card in BotStatusGrid showing recent performance (clickable, navigates to bot's analytics tab)
+- Make the revenue breakdown sections in RevenueDashboard clickable -- clicking "Trading Profits" navigates to `/bots/trading`, "Dropshipping" to `/bots/deondre`, etc.
+- Add a small "Bot Performance" Recharts bar chart below QuickStats comparing all 6 bots' key metrics side by side, with each bar clickable to navigate to that bot
+
+---
+
+## File Summary
+
+| File | Action |
+|------|--------|
+| `src/pages/LoginPage.tsx` | Create -- login/signup form |
+| `src/contexts/AuthContext.tsx` | Create -- auth provider + hook |
+| `src/components/ProtectedRoute.tsx` | Create -- route guard |
+| `src/integrations/supabase/client.ts` | Create -- Supabase client init |
+| `src/App.tsx` | Update -- add auth provider, login route, protected routes |
+| `src/components/layout/TopNav.tsx` | Update -- real sign out |
+| `src/pages/SettingsPage.tsx` | Update -- integrations panel, real user data |
+| `src/pages/Index.tsx` | Update -- add bot performance chart |
+| `src/components/dashboard/BotStatusGrid.tsx` | Update -- add mini performance indicators |
+| `src/components/dashboard/RevenueDashboard.tsx` | Update -- clickable revenue sources |
+| Supabase migrations | Create profiles table, user_roles table, RLS policies, triggers |
 
 ---
 
 ## Technical Notes
 
-- All charts use Recharts (already installed)
-- All UI uses existing Shadcn components (Tabs, Table, Card, Dialog, Badge, Progress, Switch, Accordion, Select, Checkbox)
-- Framer Motion for page transitions and card animations
-- Money formatting: `$XX,XXX` with Intl.NumberFormat
-- Percentages to 1 decimal, dates as `MMM DD, YYYY`
-- No new dependencies needed
-- Dark mode compatible using existing CSS custom properties
-- Responsive grids: 3-col on desktop, 2-col on tablet, 1-col on mobile
-
+- Auth uses Supabase's built-in `onAuthStateChange` set up BEFORE `getSession()` per best practices
+- Login page matches NEXUS dark theme with gradient background and teal accents
+- No new dependencies needed -- Supabase client comes from Lovable Cloud connection
+- Integration links open in new tabs (`target="_blank"`)
+- All charts use existing Recharts library
+- Clickable chart elements use `onClick` handlers with `useNavigate()`
