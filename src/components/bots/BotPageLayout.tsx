@@ -2,7 +2,15 @@ import { motion } from 'framer-motion';
 import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { bots } from '@/data/mockData';
+
+const BOT_DEFS: Record<string, { name: string; icon: string; description: string }> = {
+  ronnie: { name: 'Ronnie Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states' },
+  ana: { name: 'Ana Sales Analyst', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals' },
+  trading: { name: 'Tammy Trader', icon: 'TrendingUp', description: 'Executes day trades, swing trades, manages portfolio with strict risk limits' },
+  rhianna: { name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them' },
+  deondre: { name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day' },
+  carter: { name: 'Carter Content', icon: 'Video', description: 'Creates viral content across YouTube, TikTok, X, Instagram, LinkedIn daily' },
+};
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home, Briefcase, TrendingUp, Search, ShoppingBag, Video,
@@ -21,11 +29,10 @@ interface BotPageLayoutProps {
 }
 
 export function BotPageLayout({ botId, tabs, defaultTab }: BotPageLayoutProps) {
-  const bot = bots.find((b) => b.id === botId);
+  const bot = BOT_DEFS[botId];
   if (!bot) return <div className="p-6">Bot not found</div>;
 
   const Icon = iconMap[bot.icon] || Home;
-  const statusColor = bot.status === 'active' ? 'bg-[hsl(var(--nexus-success))]' : bot.status === 'attention' ? 'bg-[hsl(var(--nexus-warning))]' : 'bg-[hsl(var(--nexus-urgent))]';
 
   return (
     <motion.div
@@ -41,8 +48,8 @@ export function BotPageLayout({ botId, tabs, defaultTab }: BotPageLayoutProps) {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{bot.name}</h1>
-            <div className={`h-2.5 w-2.5 rounded-full ${statusColor}`} />
-            <Badge variant="outline" className="text-xs capitalize">{bot.status}</Badge>
+            <div className="h-2.5 w-2.5 rounded-full bg-nexus-success" />
+            <Badge variant="outline" className="text-xs">Live Data</Badge>
           </div>
           <p className="text-sm text-muted-foreground mt-1">{bot.description}</p>
         </div>

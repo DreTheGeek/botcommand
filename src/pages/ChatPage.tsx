@@ -8,8 +8,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Send, MessageCircle, Eye, EyeOff } from 'lucide-react';
+import { Send, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { VoiceRecordButton } from '@/components/chat/VoiceRecordButton';
+import { FileUploadButton } from '@/components/chat/FileUploadButton';
+import { ChatMediaMessage } from '@/components/chat/ChatMediaMessage';
 
 const BOTS = [
   { id: 'ronnie', name: 'Ronnie Realty', color: 'hsl(var(--nexus-success))' },
@@ -26,64 +29,55 @@ interface ChatMessage {
   direction: string;
   content: string;
   created_at: string;
+  message_type: string;
+  file_url: string | null;
+  file_name: string | null;
 }
 
 export default function ChatPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedBot, setSelectedBot] = useState('ronnie');
-  const [showAllBots, setShowAllBots] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load messages
+  // Load messages for selected bot
   useEffect(() => {
     if (!user) return;
-
     const loadMessages = async () => {
-      const query = supabase
+      const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
+        .eq('bot_id', selectedBot)
         .order('created_at', { ascending: true });
-
-      if (!showAllBots) {
-        query.eq('bot_id', selectedBot);
-      }
-
-      const { data, error } = await query;
       if (error) {
         console.error('Failed to load messages:', error);
         return;
       }
-      setMessages(data || []);
+      setMessages((data as unknown as ChatMessage[]) || []);
     };
-
     loadMessages();
-  }, [user, selectedBot, showAllBots]);
+  }, [user, selectedBot]);
 
   // Realtime subscription
   useEffect(() => {
     if (!user) return;
-
     const channel = supabase
-      .channel('chat-realtime')
+      .channel(`chat-${selectedBot}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages' },
         (payload) => {
           const newMsg = payload.new as ChatMessage;
-          if (!showAllBots && newMsg.bot_id !== selectedBot) return;
+          if (newMsg.bot_id !== selectedBot) return;
           setMessages((prev) => [...prev, newMsg]);
         }
       )
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, selectedBot, showAllBots]);
+    return () => { supabase.removeChannel(channel); };
+  }, [user, selectedBot]);
 
   // Auto-scroll
   useEffect(() => {
@@ -95,7 +89,6 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!input.trim() || sending) return;
     setSending(true);
-
     try {
       const { error } = await supabase.functions.invoke('send-telegram', {
         body: { bot_id: selectedBot, message: input.trim() },
@@ -128,15 +121,6 @@ export default function ChatPage() {
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <MessageCircle className="h-6 w-6" /> Bot Chat
         </h1>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => setShowAllBots(!showAllBots)}
-        >
-          {showAllBots ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          {showAllBots ? 'Focused View' : 'Cross-Bot View'}
-        </Button>
       </div>
 
       <div className="flex gap-4 flex-1 min-h-0">
@@ -145,10 +129,10 @@ export default function ChatPage() {
           {BOTS.map((bot) => (
             <button
               key={bot.id}
-              onClick={() => { setSelectedBot(bot.id); setShowAllBots(false); }}
+              onClick={() => setSelectedBot(bot.id)}
               className={cn(
                 'w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2',
-                selectedBot === bot.id && !showAllBots
+                selectedBot === bot.id
                   ? 'bg-primary/15 text-primary border border-primary/30'
                   : 'hover:bg-muted/50 text-muted-foreground'
               )}
@@ -165,17 +149,11 @@ export default function ChatPage() {
         {/* Chat area */}
         <Card className="flex-1 flex flex-col min-h-0">
           <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
-            {showAllBots ? (
-              <span className="text-sm font-medium">All Bots — Shared Feed</span>
-            ) : (
-              <>
-                <div
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: getBotInfo(selectedBot).color }}
-                />
-                <span className="text-sm font-medium">{getBotInfo(selectedBot).name}</span>
-              </>
-            )}
+            <div
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: getBotInfo(selectedBot).color }}
+            />
+            <span className="text-sm font-medium">{getBotInfo(selectedBot).name}</span>
             <Badge variant="outline" className="ml-auto text-[10px]">
               {messages.length} messages
             </Badge>
@@ -205,18 +183,23 @@ export default function ChatPage() {
                           : 'bg-muted/60 border border-border/50 rounded-bl-sm'
                       )}
                     >
-                      {(showAllBots || !isOutgoing) && (
+                      {!isOutgoing && (
                         <div className="flex items-center gap-1.5 mb-1">
                           <div
                             className="h-2 w-2 rounded-full"
                             style={{ backgroundColor: bot.color }}
                           />
                           <span className="text-[10px] font-medium opacity-70">
-                            {isOutgoing ? `You → ${bot.name}` : bot.name}
+                            {bot.name}
                           </span>
                         </div>
                       )}
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      <ChatMediaMessage
+                        messageType={msg.message_type || 'text'}
+                        content={msg.content}
+                        fileUrl={msg.file_url}
+                        fileName={msg.file_name}
+                      />
                       <p className={cn(
                         'text-[10px] mt-1 opacity-50',
                         isOutgoing ? 'text-right' : 'text-left'
@@ -232,6 +215,10 @@ export default function ChatPage() {
 
           {/* Input */}
           <div className="p-3 border-t border-border/50 flex gap-2">
+            <FileUploadButton
+              botId={selectedBot}
+              onSent={() => {}}
+            />
             <Textarea
               placeholder={`Message ${getBotInfo(selectedBot).name}...`}
               value={input}
@@ -239,11 +226,13 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               className="min-h-[44px] max-h-[120px] resize-none"
               rows={1}
-              disabled={showAllBots}
+            />
+            <VoiceRecordButton
+              onTranscript={(text) => setInput((prev) => prev + text)}
             />
             <Button
               onClick={sendMessage}
-              disabled={!input.trim() || sending || showAllBots}
+              disabled={!input.trim() || sending}
               size="icon"
               className="shrink-0 h-11 w-11"
             >
