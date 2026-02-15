@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { revenue } from '@/data/mockData';
 
@@ -11,13 +12,14 @@ const fmt = (n: number) =>
   });
 
 const sources = [
-  { label: 'Property Deals', key: 'property' as const, color: 'text-nexus-info' },
-  { label: 'Trading Profits', key: 'trading' as const, color: 'text-nexus-success' },
-  { label: 'Sales/Consulting', key: 'sales' as const, color: 'text-accent' },
-  { label: 'Dropshipping', key: 'dropshipping' as const, color: 'text-nexus-warning' },
+  { label: 'Property Deals', key: 'property' as const, color: 'text-nexus-info', route: '/bots/ronnie' },
+  { label: 'Trading Profits', key: 'trading' as const, color: 'text-nexus-success', route: '/bots/trading' },
+  { label: 'Sales/Consulting', key: 'sales' as const, color: 'text-accent', route: '/bots/ana' },
+  { label: 'Dropshipping', key: 'dropshipping' as const, color: 'text-nexus-warning', route: '/bots/deondre' },
 ];
 
 export function RevenueDashboard() {
+  const navigate = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,7 +48,8 @@ export function RevenueDashboard() {
             {sources.map((s) => (
               <div
                 key={s.key}
-                className="text-center p-3 rounded-lg bg-secondary/50"
+                className="text-center p-3 rounded-lg bg-secondary/50 cursor-pointer hover:bg-secondary/80 transition-colors"
+                onClick={() => navigate(s.route)}
               >
                 <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
                 <p className={`text-lg font-mono font-bold ${s.color}`}>
