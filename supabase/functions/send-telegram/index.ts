@@ -60,8 +60,7 @@ async function getCrossBotContext(serviceClient: any, targetBotId: string, userI
     }
 
     const aiResult = await aiResponse.json();
-    const summary = aiResult.choices?.[0]?.message?.content;
-    return summary || null;
+    return aiResult.choices?.[0]?.message?.content || null;
   } catch (err) {
     console.error("Cross-bot context error:", err);
     return null;
@@ -98,10 +97,10 @@ Deno.serve(async (req) => {
     }
 
     const userId = data.claims.sub;
-    const { bot_id, message, parse_mode } = await req.json();
+    const { bot_id, message, parse_mode, type, file_url, file_name } = await req.json();
 
-    if (!bot_id || !message) {
-      return new Response(JSON.stringify({ error: "bot_id and message are required" }), {
+    if (!bot_id || (!message && !file_url)) {
+      return new Response(JSON.stringify({ error: "bot_id and message/file_url are required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -125,30 +124,52 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch cross-bot context using service role (bypasses RLS)
+    // Fetch cross-bot context
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
     const contextSummary = await getCrossBotContext(serviceClient, bot_id, userId as string);
 
-    // Build Telegram message: prepend context if available
-    let telegramText = message;
-    if (contextSummary) {
-      telegramText = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${message}`;
+    const messageType = type || "text";
+    let tgResult: any;
+    let tgResponse: Response;
+
+    if (messageType === "photo" && file_url) {
+      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+      let caption = message || "";
+      if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
+      tgResponse = await fetch(telegramUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, photo: file_url, caption: caption || undefined }),
+      });
+      tgResult = await tgResponse.json();
+    } else if (messageType === "document" && file_url) {
+      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendDocument`;
+      let caption = message || "";
+      if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
+      tgResponse = await fetch(telegramUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, document: file_url, caption: caption || undefined }),
+      });
+      tgResult = await tgResponse.json();
+    } else {
+      let telegramText = message;
+      if (contextSummary) {
+        telegramText = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${message}`;
+      }
+      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      const body: Record<string, string> = { chat_id: chatId, text: telegramText };
+      if (parse_mode) body.parse_mode = parse_mode;
+      tgResponse = await fetch(telegramUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      tgResult = await tgResponse.json();
     }
-
-    const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    const body: Record<string, string> = { chat_id: chatId, text: telegramText };
-    if (parse_mode) body.parse_mode = parse_mode;
-
-    const tgResponse = await fetch(telegramUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    const tgResult = await tgResponse.json();
 
     if (!tgResponse.ok) {
       return new Response(JSON.stringify({ error: "Telegram API error", details: tgResult }), {
@@ -157,12 +178,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Persist only the original message (without context) to chat_messages
+    // Persist message
     const { error: insertError } = await supabase.from("chat_messages").insert({
       user_id: userId,
       bot_id: bot_id,
       direction: "outgoing",
-      content: message,
+      content: message || (file_url ? `[${messageType === "photo" ? "Photo" : "Document"}]` : ""),
+      message_type: messageType,
+      file_url: file_url || null,
+      file_name: file_name || null,
       telegram_message_id: tgResult.result?.message_id || null,
     });
 

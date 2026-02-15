@@ -14,13 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      bot_data_entries: {
+        Row: {
+          bot_id: string
+          category: string
+          created_at: string
+          data: Json
+          id: string
+          source_message_id: string | null
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          category: string
+          created_at?: string
+          data?: Json
+          id?: string
+          source_message_id?: string | null
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          category?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          source_message_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_data_entries_source_message_id_fkey"
+            columns: ["source_message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           bot_id: string
           content: string
           created_at: string
           direction: string
+          file_name: string | null
+          file_url: string | null
           id: string
+          message_type: string
           telegram_message_id: number | null
           user_id: string
         }
@@ -29,7 +70,10 @@ export type Database = {
           content: string
           created_at?: string
           direction: string
+          file_name?: string | null
+          file_url?: string | null
           id?: string
+          message_type?: string
           telegram_message_id?: number | null
           user_id: string
         }
@@ -38,7 +82,10 @@ export type Database = {
           content?: string
           created_at?: string
           direction?: string
+          file_name?: string | null
+          file_url?: string | null
           id?: string
+          message_type?: string
           telegram_message_id?: number | null
           user_id?: string
         }
