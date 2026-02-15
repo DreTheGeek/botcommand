@@ -21,7 +21,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -45,6 +44,7 @@ Deno.serve(async (req) => {
       });
     }
 
+    const userId = data.claims.sub;
     const { bot_id, message, parse_mode } = await req.json();
 
     if (!bot_id || !message) {
@@ -89,6 +89,19 @@ Deno.serve(async (req) => {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Persist outgoing message to chat_messages
+    const { error: insertError } = await supabase.from("chat_messages").insert({
+      user_id: userId,
+      bot_id: bot_id,
+      direction: "outgoing",
+      content: message,
+      telegram_message_id: tgResult.result?.message_id || null,
+    });
+
+    if (insertError) {
+      console.error("Failed to persist outgoing message:", insertError);
     }
 
     return new Response(JSON.stringify({ success: true, bot_id }), {

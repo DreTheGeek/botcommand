@@ -22,6 +22,7 @@ import AnalyticsHub from "./pages/AnalyticsHub";
 import SearchPage from "./pages/SearchPage";
 import RawData from "./pages/RawData";
 import SettingsPage from "./pages/SettingsPage";
+import ChatPage from "./pages/ChatPage";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
                       <Route path="/search" element={<SearchPage />} />
                       <Route path="/data" element={<RawData />} />
                       <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/chat" element={<ChatPage />} />
                       <Route path="/bots/ronnie" element={<RonnieRealty />} />
                       <Route path="/bots/ana" element={<AnaSales />} />
                       <Route path="/bots/trading" element={<TradingBot />} />
