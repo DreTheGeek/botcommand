@@ -77,7 +77,7 @@ function DealPipelineTab() {
         }}><Download className="h-4 w-4 mr-1" />Export CSV</Button>
       </div>
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -106,7 +106,7 @@ function DealPipelineTab() {
         <DialogContent>
           <DialogHeader><DialogTitle>{selected?.address}</DialogTitle></DialogHeader>
           {selected && (
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div><span className="text-muted-foreground">County:</span> {selected.county}, {selected.state}</div>
               <div><span className="text-muted-foreground">Sale Date:</span> {fmt.date(selected.saleDate)}</div>
               <div><span className="text-muted-foreground">Min Bid:</span> {fmt.money(selected.minBid)}</div>
@@ -163,7 +163,7 @@ function AnalyticsTab() {
 function PurchasesTab() {
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

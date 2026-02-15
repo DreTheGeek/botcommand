@@ -47,7 +47,7 @@ function DashboardTab() {
 function OpenPositionsTab() {
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow><TableHead>Symbol</TableHead><TableHead>Strategy</TableHead><TableHead>Shares</TableHead><TableHead className="text-right">Entry</TableHead><TableHead className="text-right">Current</TableHead><TableHead className="text-right">P&L</TableHead><TableHead>Hold Time</TableHead></TableRow>
@@ -81,7 +81,7 @@ function TradeHistoryTab() {
         }}><Download className="h-4 w-4 mr-1" />Export CSV</Button>
       </div>
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow><TableHead>Date</TableHead><TableHead>Symbol</TableHead><TableHead>Strategy</TableHead><TableHead className="text-right">Entry</TableHead><TableHead className="text-right">Exit</TableHead><TableHead className="text-right">P&L</TableHead><TableHead>Result</TableHead></TableRow>
@@ -109,7 +109,7 @@ function TradeHistoryTab() {
 function StrategiesTab() {
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow><TableHead>Strategy</TableHead><TableHead>Trades</TableHead><TableHead>Win Rate</TableHead><TableHead className="text-right">Avg Profit</TableHead><TableHead className="text-right">Max Drawdown</TableHead><TableHead>Sharpe</TableHead><TableHead>Status</TableHead></TableRow>

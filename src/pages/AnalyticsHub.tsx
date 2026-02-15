@@ -41,7 +41,7 @@ export default function AnalyticsHub() {
 
       <Card>
         <CardHeader><CardTitle className="text-base">Cross-Bot Performance</CardTitle></CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow><TableHead>Bot</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Revenue</TableHead><TableHead>Key Metric</TableHead></TableRow>
