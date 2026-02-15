@@ -36,7 +36,7 @@ export interface Task {
 
 export const bots: Bot[] = [
   { id: 'ronnie', name: 'Ronnie Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states', status: 'active', keyMetric: '3 hot deals found today', route: '/bots/ronnie' },
-  { id: 'ana', name: 'Ana Sales', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals', status: 'active', keyMetric: '$275K in pipeline', route: '/bots/ana' },
+  { id: 'ana', name: 'Ana Sales Analyst', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals', status: 'active', keyMetric: '$275K in pipeline', route: '/bots/ana' },
   { id: 'trading', name: 'Trading Bot', icon: 'TrendingUp', description: 'Executes day trades, swing trades, manages portfolio with strict risk limits', status: 'active', keyMetric: '+$142 today (78% win rate)', route: '/bots/trading' },
   { id: 'rhianna', name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them', status: 'attention', keyMetric: '5 opportunities detected', route: '/bots/rhianna' },
   { id: 'deondre', name: 'Deondre', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day', status: 'active', keyMetric: '2 products scaling (3.4 ROAS)', route: '/bots/deondre' },
