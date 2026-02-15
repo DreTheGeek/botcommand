@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          bot_id: string
+          content: string
+          created_at: string
+          direction: string
+          id: string
+          telegram_message_id: number | null
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          content: string
+          created_at?: string
+          direction: string
+          id?: string
+          telegram_message_id?: number | null
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          content?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          telegram_message_id?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

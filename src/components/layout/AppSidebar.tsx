@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ShoppingBag,
   Video,
+  MessageCircle,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -26,6 +27,7 @@ import {
 
 const mainNav = [
   { title: 'Dashboard', url: '/', icon: Home },
+  { title: 'Bot Chat', url: '/chat', icon: MessageCircle },
   { title: 'Revenue Hub', url: '/revenue', icon: DollarSign },
   { title: 'Calendar', url: '/calendar', icon: Calendar },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
