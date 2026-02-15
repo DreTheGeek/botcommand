@@ -2,95 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --background: 220 20% 97%;
+    --foreground: 232 50% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 232 50% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 232 50% 12%;
+    --primary: 189 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 93%;
+    --secondary-foreground: 232 50% 12%;
+    --muted: 220 20% 93%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 259 90% 70%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 189 100% 42%;
+    --radius: 0.75rem;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --nexus-teal: 189 100% 50%;
+    --nexus-purple: 259 97% 76%;
+    --nexus-urgent: 0 84% 60%;
+    --nexus-warning: 38 92% 50%;
+    --nexus-success: 160 84% 39%;
+    --nexus-info: 217 91% 60%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 20% 95%;
+    --sidebar-foreground: 232 50% 12%;
+    --sidebar-primary: 189 100% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 90%;
+    --sidebar-accent-foreground: 232 50% 12%;
+    --sidebar-border: 220 13% 87%;
+    --sidebar-ring: 189 100% 42%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 232 60% 9%;
+    --foreground: 210 40% 96%;
+    --card: 222 30% 17%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 30% 15%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 189 100% 50%;
+    --primary-foreground: 232 60% 5%;
+    --secondary: 222 30% 22%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 222 30% 20%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 259 97% 76%;
+    --accent-foreground: 232 60% 5%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 222 30% 24%;
+    --input: 222 30% 22%;
+    --ring: 189 100% 50%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --nexus-teal: 189 100% 50%;
+    --nexus-purple: 259 97% 76%;
+    --nexus-urgent: 0 84% 60%;
+    --nexus-warning: 38 92% 50%;
+    --nexus-success: 160 84% 39%;
+    --nexus-info: 217 91% 60%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 232 50% 11%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 189 100% 50%;
+    --sidebar-primary-foreground: 232 60% 5%;
+    --sidebar-accent: 222 30% 17%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 24%;
+    --sidebar-ring: 189 100% 50%;
   }
 }
 
@@ -98,8 +85,80 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
   }
+}
+
+@layer utilities {
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Animated gradient background */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.nexus-bg-animated {
+  background: linear-gradient(
+    -45deg,
+    hsl(232 60% 9%),
+    hsl(232 38% 16%),
+    hsl(232 60% 12%),
+    hsl(240 40% 10%)
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Particle dots overlay */
+.nexus-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.nexus-particles::before,
+.nexus-particles::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: hsl(189 100% 50% / 0.3);
+  box-shadow:
+    100px 200px 0 hsl(189 100% 50% / 0.15),
+    300px 100px 0 hsl(259 97% 76% / 0.1),
+    500px 300px 0 hsl(189 100% 50% / 0.2),
+    700px 150px 0 hsl(259 97% 76% / 0.15),
+    200px 400px 0 hsl(189 100% 50% / 0.1),
+    900px 250px 0 hsl(259 97% 76% / 0.12),
+    400px 500px 0 hsl(189 100% 50% / 0.18),
+    600px 50px 0 hsl(259 97% 76% / 0.08),
+    800px 400px 0 hsl(189 100% 50% / 0.14),
+    150px 350px 0 hsl(259 97% 76% / 0.1),
+    1000px 300px 0 hsl(189 100% 50% / 0.12),
+    1200px 200px 0 hsl(259 97% 76% / 0.15),
+    1100px 450px 0 hsl(189 100% 50% / 0.1),
+    50px 100px 0 hsl(259 97% 76% / 0.08);
+  animation: float-particles 20s linear infinite;
+}
+
+.nexus-particles::after {
+  animation-delay: -10s;
+  animation-duration: 25s;
+}
+
+@keyframes float-particles {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-15px) translateX(8px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(-25px) translateX(12px); }
+  100% { transform: translateY(0) translateX(0); }
 }
