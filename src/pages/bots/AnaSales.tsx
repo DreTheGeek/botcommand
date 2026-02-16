@@ -2,37 +2,66 @@ import { BotPageLayout } from '@/components/bots/BotPageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
 import { useBotData } from '@/hooks/useBotData';
 import { useDeals } from '@/hooks/useExternalData';
+import { Phone, Mail, Users } from 'lucide-react';
+import { prospects, proposals, activities, fmt as mockFmt } from '@/data/mockData';
 
 const fmt = {
   money: (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n),
 };
 
 function PipelineTab() {
-  const { data: entries } = useBotData({ botId: 'ana', category: 'prospect' });
   const { data: extDeals } = useDeals();
-  const internalProspects = (entries || []).map((e) => ({ id: e.id, ...(e.data as Record<string, any>) }));
-  const prospects = (extDeals || []).length > 0 ? (extDeals as any[]) : internalProspects;
-  const pipelineValue = prospects.reduce((s: number, p: any) => s + (Number(p.dealSize) || Number(p.deal_size) || Number(p.value) || 0), 0);
+  const deals = (extDeals || []).length > 0 ? (extDeals as any[]) : prospects;
+  const pipelineValue = deals.reduce((s: number, p: any) => s + (Number(p.dealSize) || Number(p.deal_size) || Number(p.value) || 0), 0);
+  const activeDeals = deals.filter((d: any) => !['Won', 'Lost'].includes(d.stage)).length;
+  const wonDeals = deals.filter((d: any) => d.stage === 'Won').length;
+  const winRate = deals.length > 0 ? Math.round((wonDeals / deals.length) * 100) : 0;
+  const avgDeal = deals.length > 0 ? Math.round(pipelineValue / deals.length) : 0;
+
+  const stageColor = (stage: string) => {
+    switch (stage) {
+      case 'Won': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
+      case 'Lost': return 'bg-destructive/10 text-destructive border-destructive/30';
+      case 'Negotiating': return 'bg-[hsl(var(--nexus-warning))]/10 text-[hsl(var(--nexus-warning))] border-[hsl(var(--nexus-warning))]/30';
+      case 'Proposal': return 'bg-primary/10 text-primary border-primary/30';
+      case 'Qualified': return 'bg-[hsl(var(--nexus-info))]/10 text-[hsl(var(--nexus-info))] border-[hsl(var(--nexus-info))]/30';
+      default: return '';
+    }
+  };
 
   return (
     <div className="space-y-4">
-      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmt.money(pipelineValue)}</p><p className="text-xs text-muted-foreground">Pipeline Value</p></CardContent></Card>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmt.money(pipelineValue)}</p><p className="text-xs text-muted-foreground">Total Pipeline</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold">{activeDeals}</p><p className="text-xs text-muted-foreground">Active Deals</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmt.money(avgDeal)}</p><p className="text-xs text-muted-foreground">Avg Deal Size</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-2xl font-bold text-[hsl(var(--nexus-success))]">{winRate}%</p><p className="text-xs text-muted-foreground">Win Rate</p></CardContent></Card>
+      </div>
       <Card>
         <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow><TableHead>Company</TableHead><TableHead>Contact</TableHead><TableHead className="text-right">Deal Size</TableHead><TableHead>Stage</TableHead></TableRow>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead className="text-right">Deal Size</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead className="text-right">Days in Stage</TableHead>
+                <TableHead>Next Action</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
-              {prospects.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No prospects yet</TableCell></TableRow>}
-              {prospects.map((p: any) => (
+              {deals.map((p: any) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.company || p.name || '—'}</TableCell>
                   <TableCell>{p.contact || '—'}</TableCell>
-                  <TableCell className="text-right">{p.dealSize || p.deal_size || p.value ? fmt.money(Number(p.dealSize || p.deal_size || p.value)) : '—'}</TableCell>
-                  <TableCell><Badge variant="outline">{p.stage || 'New'}</Badge></TableCell>
+                  <TableCell className="text-right">{fmt.money(Number(p.dealSize || p.deal_size || p.value || 0))}</TableCell>
+                  <TableCell><Badge variant="outline" className={stageColor(p.stage)}>{p.stage || 'New'}</Badge></TableCell>
+                  <TableCell className="text-right">{p.daysInStage ?? p.days_in_stage ?? '—'}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{p.nextAction || p.next_action || '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -43,24 +72,142 @@ function PipelineTab() {
   );
 }
 
-function AllDataTab() {
-  const { data: entries } = useBotData({ botId: 'ana' });
+function ProposalsTab() {
+  const statusColor = (status: string) => {
+    switch (status) {
+      case 'Accepted': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
+      case 'Rejected': return 'bg-destructive/10 text-destructive border-destructive/30';
+      case 'Viewed': return 'bg-primary/10 text-primary border-primary/30';
+      default: return '';
+    }
+  };
+
   return (
     <Card>
-      <CardHeader><CardTitle className="text-base">All Ana Data</CardTitle></CardHeader>
-      <CardContent className="space-y-2">
-        {(entries || []).length === 0 && <p className="text-sm text-muted-foreground">No data entries yet.</p>}
-        {(entries || []).map((e) => (
-          <div key={e.id} className="p-3 rounded-lg bg-muted/30 text-sm">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className="text-[10px]">{e.category}</Badge>
-              <span className="text-[10px] text-muted-foreground">{new Date(e.created_at).toLocaleString()}</span>
-            </div>
-            <pre className="text-xs whitespace-pre-wrap text-muted-foreground">{JSON.stringify(e.data, null, 2)}</pre>
-          </div>
-        ))}
+      <CardContent className="p-0 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Company</TableHead>
+              <TableHead>Sent Date</TableHead>
+              <TableHead className="text-right">Deal Size</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Engagement</TableHead>
+              <TableHead className="text-right">Views</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {proposals.map((p) => (
+              <TableRow key={p.id}>
+                <TableCell className="font-medium">{p.company}</TableCell>
+                <TableCell>{mockFmt.date(p.sentDate)}</TableCell>
+                <TableCell className="text-right">{fmt.money(p.dealSize)}</TableCell>
+                <TableCell><Badge variant="outline" className={statusColor(p.status)}>{p.status}</Badge></TableCell>
+                <TableCell className="text-right">{p.engagementScore}/10</TableCell>
+                <TableCell className="text-right">{p.views}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
+  );
+}
+
+function ActivityLogTab() {
+  const typeIcon = (type: string) => {
+    switch (type) {
+      case 'call': return <Phone className="h-3.5 w-3.5" />;
+      case 'email': return <Mail className="h-3.5 w-3.5" />;
+      case 'meeting': return <Users className="h-3.5 w-3.5" />;
+      default: return null;
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="p-0 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Type</TableHead>
+              <TableHead>Prospect</TableHead>
+              <TableHead>Subject</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Outcome</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {activities.map((a) => (
+              <TableRow key={a.id}>
+                <TableCell>
+                  <Badge variant="outline" className="gap-1 capitalize">
+                    {typeIcon(a.type)} {a.type}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-medium">{a.prospect}</TableCell>
+                <TableCell>{a.subject}</TableCell>
+                <TableCell>{mockFmt.date(a.date)}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{a.outcome}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AnalyticsTab() {
+  const pipelineValue = prospects.reduce((s, p) => s + p.dealSize, 0);
+  const wonValue = prospects.filter((p) => p.stage === 'Won').reduce((s, p) => s + p.dealSize, 0);
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmt.money(pipelineValue)}</p><p className="text-xs text-muted-foreground">Total Pipeline</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold text-[hsl(var(--nexus-success))]">{fmt.money(wonValue)}</p><p className="text-xs text-muted-foreground">Won Revenue</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{proposals.length}</p><p className="text-xs text-muted-foreground">Proposals Sent</p></CardContent></Card>
+    </div>
+  );
+}
+
+function SettingsTab() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader><CardTitle className="text-base">Sales Criteria</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          {[
+            { label: 'Min Deal Size', value: '$25,000' },
+            { label: 'Max Deal Size', value: '$85,000' },
+            { label: 'Target Industries', value: 'Tech, Healthcare, Logistics' },
+            { label: 'Follow-up Cadence', value: '3 days' },
+          ].map((item) => (
+            <div key={item.label} className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">{item.label}</span>
+              <span className="text-sm font-medium">{item.value}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle className="text-base">Bot Controls</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Bot Active</span>
+            <Switch defaultChecked />
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Auto-Proposals</span>
+            <Switch defaultChecked />
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Lead Scoring</span>
+            <Switch defaultChecked />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -68,7 +215,10 @@ export default function AnaSales() {
   return (
     <BotPageLayout botId="ana" tabs={[
       { value: 'pipeline', label: 'Pipeline', content: <PipelineTab /> },
-      { value: 'all', label: 'All Data', content: <AllDataTab /> },
+      { value: 'proposals', label: 'Proposals', content: <ProposalsTab /> },
+      { value: 'activity', label: 'Activity Log', content: <ActivityLogTab /> },
+      { value: 'analytics', label: 'Analytics', content: <AnalyticsTab /> },
+      { value: 'settings', label: 'Settings', content: <SettingsTab /> },
     ]} />
   );
 }
