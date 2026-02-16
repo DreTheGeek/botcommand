@@ -4,6 +4,7 @@ import { Bell } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useBotData } from '@/hooks/useBotData';
+import { useSystemNotifications } from '@/hooks/useExternalData';
 
 const priorityColors: Record<string, string> = {
   urgent: 'bg-nexus-urgent',
@@ -35,16 +36,29 @@ function formatTimeAgo(dateStr: string) {
 export function AlertCenter() {
   const [filter, setFilter] = useState('all');
   const { data: entries } = useBotData({ category: 'alert', limit: 20 });
+  const { data: externalNotifications } = useSystemNotifications(20);
 
-  const alerts = (entries || []).map((e) => ({
+  // Merge internal alerts with external notifications
+  const internalAlerts = (entries || []).map((e) => ({
     id: e.id,
     priority: (e.data as any)?.severity || 'info',
     botId: e.bot_id,
     message: (e.data as any)?.message || JSON.stringify(e.data),
     timeAgo: formatTimeAgo(e.created_at),
+    source: 'internal' as const,
   }));
 
-  const filtered = alerts.filter((n) => filter === 'all' || n.priority === filter).slice(0, 5);
+  const externalAlerts = (externalNotifications || []).map((n: any) => ({
+    id: n.id,
+    priority: n.priority || n.severity || 'info',
+    botId: n.bot_id || 'system',
+    message: n.message || n.content || '',
+    timeAgo: formatTimeAgo(n.created_at),
+    source: 'external' as const,
+  }));
+
+  const allAlerts = [...externalAlerts, ...internalAlerts];
+  const filtered = allAlerts.filter((n) => filter === 'all' || n.priority === filter).slice(0, 8);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
@@ -61,7 +75,7 @@ export function AlertCenter() {
         </CardHeader>
         <CardContent className="space-y-2">
           {filtered.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-4">No alerts yet. Bot messages with alerts will appear here.</p>
+            <p className="text-xs text-muted-foreground text-center py-4">No alerts yet.</p>
           )}
           {filtered.map((n) => (
             <div key={n.id} className="flex items-start gap-2 p-2 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors">

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBotData } from '@/hooks/useBotData';
+import { useTrades } from '@/hooks/useExternalData';
 
 const fmt = {
   money: (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n),
@@ -11,9 +12,11 @@ const fmt = {
 
 function DashboardTab() {
   const { data: entries } = useBotData({ botId: 'tammy', category: 'trade' });
-  const trades = (entries || []).map((e) => e.data as Record<string, any>);
-  const totalPnl = trades.reduce((s, t) => s + (Number(t.pnl) || 0), 0);
-  const wins = trades.filter((t) => t.result === 'W' || (Number(t.pnl) || 0) > 0).length;
+  const { data: extTrades } = useTrades();
+  const internalTrades = (entries || []).map((e) => e.data as Record<string, any>);
+  const trades = (extTrades || []).length > 0 ? (extTrades as Record<string, any>[]) : internalTrades;
+  const totalPnl = trades.reduce((s, t) => s + (Number(t.pnl) || Number(t.profit) || 0), 0);
+  const wins = trades.filter((t) => t.result === 'W' || (Number(t.pnl || t.profit) || 0) > 0).length;
   const winRate = trades.length > 0 ? (wins / trades.length) * 100 : 0;
 
   return (
@@ -28,14 +31,16 @@ function DashboardTab() {
           <Card key={m.label}><CardContent className="p-4"><p className={`text-2xl font-bold ${m.color}`}>{m.value}</p><p className="text-xs text-muted-foreground">{m.label}</p></CardContent></Card>
         ))}
       </div>
-      {trades.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No trades extracted yet. Tammy's trade data will appear here.</p>}
+      {trades.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No trades yet.</p>}
     </div>
   );
 }
 
 function TradeHistoryTab() {
   const { data: entries } = useBotData({ botId: 'tammy', category: 'trade' });
-  const trades = (entries || []).map((e) => ({ id: e.id, created: e.created_at, ...(e.data as Record<string, any>) })) as Array<Record<string, any>>;
+  const { data: extTrades } = useTrades();
+  const internalTrades = (entries || []).map((e) => ({ id: e.id, created: e.created_at, ...(e.data as Record<string, any>) }));
+  const trades = (extTrades || []).length > 0 ? (extTrades as any[]) : internalTrades;
 
   return (
     <Card>
@@ -46,15 +51,15 @@ function TradeHistoryTab() {
           </TableHeader>
           <TableBody>
             {trades.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No trades yet</TableCell></TableRow>}
-            {trades.map((t) => (
+            {trades.map((t: any) => (
               <TableRow key={t.id}>
-                <TableCell>{new Date(t.created).toLocaleDateString()}</TableCell>
-                <TableCell className="font-bold">{t.symbol || '—'}</TableCell>
+                <TableCell>{new Date(t.created || t.created_at || t.date).toLocaleDateString()}</TableCell>
+                <TableCell className="font-bold">{t.symbol || t.ticker || '—'}</TableCell>
                 <TableCell><Badge variant="outline">{t.strategy || '—'}</Badge></TableCell>
-                <TableCell className={`text-right font-medium ${(Number(t.pnl) || 0) >= 0 ? 'text-[hsl(var(--nexus-success))]' : 'text-[hsl(var(--nexus-urgent))]'}`}>
-                  {(Number(t.pnl) || 0) >= 0 ? '+' : ''}{fmt.money(Number(t.pnl) || 0)}
+                <TableCell className={`text-right font-medium ${(Number(t.pnl || t.profit) || 0) >= 0 ? 'text-[hsl(var(--nexus-success))]' : 'text-[hsl(var(--nexus-urgent))]'}`}>
+                  {(Number(t.pnl || t.profit) || 0) >= 0 ? '+' : ''}{fmt.money(Number(t.pnl || t.profit) || 0)}
                 </TableCell>
-                <TableCell><Badge variant={t.result === 'W' || (Number(t.pnl) || 0) > 0 ? 'default' : 'destructive'}>{t.result || ((Number(t.pnl) || 0) > 0 ? 'W' : 'L')}</Badge></TableCell>
+                <TableCell><Badge variant={(Number(t.pnl || t.profit) || 0) > 0 ? 'default' : 'destructive'}>{t.result || ((Number(t.pnl || t.profit) || 0) > 0 ? 'W' : 'L')}</Badge></TableCell>
               </TableRow>
             ))}
           </TableBody>

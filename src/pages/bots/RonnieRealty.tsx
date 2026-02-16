@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBotData } from '@/hooks/useBotData';
+import { usePropertyDeals } from '@/hooks/useExternalData';
 import { Target, DollarSign, CalendarDays, MapPin } from 'lucide-react';
 
 const fmt = {
@@ -11,9 +12,11 @@ const fmt = {
 
 function OverviewTab() {
   const { data: entries } = useBotData({ botId: 'ronnie', category: 'property_deal' });
-  const deals = (entries || []).map((e) => e.data as Record<string, any>);
-  const hotDeals = deals.filter((d) => d.status === 'Hot Deal').length;
-  const totalProfit = deals.reduce((s, d) => s + (Number(d.profit) || Number(d.netProfit) || 0), 0);
+  const { data: extDeals } = usePropertyDeals();
+  const internalDeals = (entries || []).map((e) => e.data as Record<string, any>);
+  const deals = (extDeals || []).length > 0 ? (extDeals as Record<string, any>[]) : internalDeals;
+  const hotDeals = deals.filter((d) => d.status === 'Hot Deal' || d.status === 'hot').length;
+  const totalProfit = deals.reduce((s, d) => s + (Number(d.profit) || Number(d.netProfit) || Number(d.net_profit) || 0), 0);
 
   const metrics = [
     { label: 'Hot Deals', value: hotDeals || deals.length, icon: Target, color: 'text-[hsl(var(--nexus-urgent))]' },
@@ -37,14 +40,16 @@ function OverviewTab() {
           </Card>
         ))}
       </div>
-      {deals.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No property deals extracted yet. Send Ronnie some data via Telegram!</p>}
+      {deals.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No property deals yet. Send Ronnie some data!</p>}
     </div>
   );
 }
 
 function DealsTab() {
   const { data: entries } = useBotData({ botId: 'ronnie', category: 'property_deal' });
-  const deals = (entries || []).map((e) => ({ id: e.id, ...(e.data as Record<string, any>) })) as Array<Record<string, any>>;
+  const { data: extDeals } = usePropertyDeals();
+  const internalDeals = (entries || []).map((e) => ({ id: e.id, ...(e.data as Record<string, any>) }));
+  const deals = (extDeals || []).length > 0 ? (extDeals as any[]) : internalDeals;
 
   return (
     <Card>
@@ -61,12 +66,12 @@ function DealsTab() {
             {deals.length === 0 && (
               <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No deals yet</TableCell></TableRow>
             )}
-            {deals.map((d) => (
+            {deals.map((d: any) => (
               <TableRow key={d.id}>
                 <TableCell className="font-medium">{d.address || '—'}</TableCell>
                 <TableCell>{d.state || '—'}</TableCell>
                 <TableCell className="text-right">{d.min_bid ? fmt.money(d.min_bid) : '—'}</TableCell>
-                <TableCell className="text-right text-[hsl(var(--nexus-success))]">{d.profit || d.netProfit ? fmt.money(d.profit || d.netProfit) : '—'}</TableCell>
+                <TableCell className="text-right text-[hsl(var(--nexus-success))]">{d.profit || d.netProfit || d.net_profit ? fmt.money(Number(d.profit || d.netProfit || d.net_profit)) : '—'}</TableCell>
                 <TableCell><Badge variant="outline">{d.status || 'New'}</Badge></TableCell>
               </TableRow>
             ))}
