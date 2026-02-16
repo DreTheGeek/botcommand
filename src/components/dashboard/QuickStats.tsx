@@ -2,20 +2,30 @@ import { motion } from 'framer-motion';
 import { Target, TrendingUp, Calendar, Shield } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useBotData } from '@/hooks/useBotData';
+import { usePropertyDeals, useTrades, useContentPosts, useEcosystemHealth } from '@/hooks/useExternalData';
 
 export function QuickStats() {
   const { data: entries } = useBotData({ limit: 200 });
+  const { data: extDeals } = usePropertyDeals(100);
+  const { data: extTrades } = useTrades(200);
+  const { data: extContent } = useContentPosts(100);
+  const { data: extHealth } = useEcosystemHealth();
 
   const all = entries || [];
-  const activeDeals = all.filter((e) => e.category === 'property_deal').length;
-  const openPositions = all.filter((e) => e.category === 'trade').length;
-  const contentScheduled = all.filter((e) => e.category === 'content_stat').length;
+  const internalDeals = all.filter((e) => e.category === 'property_deal').length;
+  const internalTrades = all.filter((e) => e.category === 'trade').length;
+  const internalContent = all.filter((e) => e.category === 'content_stat').length;
+
+  const activeDeals = (extDeals || []).length || internalDeals;
+  const openPositions = (extTrades || []).length || internalTrades;
+  const contentCount = (extContent || []).length || internalContent;
+  const healthyBots = (extHealth || []).filter((h: any) => h.status === 'active' || h.status === 'online').length;
 
   const stats = [
     { label: 'Property Deals', value: activeDeals, icon: Target, color: 'text-nexus-info' },
     { label: 'Trade Entries', value: openPositions, icon: TrendingUp, color: 'text-nexus-success' },
-    { label: 'Content Updates', value: contentScheduled, icon: Calendar, color: 'text-accent' },
-    { label: 'System Health', value: 'Live', icon: Shield, color: 'text-nexus-success', isHealth: true },
+    { label: 'Content Updates', value: contentCount, icon: Calendar, color: 'text-accent' },
+    { label: 'Bots Online', value: healthyBots > 0 ? `${healthyBots}/6` : 'Live', icon: Shield, color: 'text-nexus-success', isHealth: healthyBots === 0 },
   ];
 
   return (

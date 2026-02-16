@@ -41,7 +41,14 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [unreadBots, setUnreadBots] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const selectedBotRef = useRef(selectedBot);
+
+  // Keep ref in sync
+  useEffect(() => {
+    selectedBotRef.current = selectedBot;
+  }, [selectedBot]);
 
   // Load messages for selected bot
   useEffect(() => {
@@ -61,23 +68,44 @@ export default function ChatPage() {
     loadMessages();
   }, [user, selectedBot]);
 
-  // Realtime subscription
+  // Global realtime subscription for unread indicators
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel(`chat-${selectedBot}`)
+      .channel('chat-all-bots')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages' },
         (payload) => {
           const newMsg = payload.new as ChatMessage;
-          if (newMsg.bot_id !== selectedBot) return;
-          setMessages((prev) => [...prev, newMsg]);
+          if (newMsg.direction !== 'incoming') return;
+
+          if (newMsg.bot_id === selectedBotRef.current) {
+            // Add to current messages
+            setMessages((prev) => [...prev, newMsg]);
+          } else {
+            // Mark as unread
+            setUnreadBots((prev) => {
+              const next = new Set(prev);
+              next.add(newMsg.bot_id);
+              return next;
+            });
+          }
         }
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user, selectedBot]);
+  }, [user]);
+
+  // Clear unread when switching bots
+  const handleSelectBot = (botId: string) => {
+    setSelectedBot(botId);
+    setUnreadBots((prev) => {
+      const next = new Set(prev);
+      next.delete(botId);
+      return next;
+    });
+  };
 
   // Auto-scroll
   useEffect(() => {
@@ -129,7 +157,7 @@ export default function ChatPage() {
           {BOTS.map((bot) => (
             <button
               key={bot.id}
-              onClick={() => setSelectedBot(bot.id)}
+              onClick={() => handleSelectBot(bot.id)}
               className={cn(
                 'w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2',
                 selectedBot === bot.id
@@ -141,7 +169,10 @@ export default function ChatPage() {
                 className="h-2.5 w-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: bot.color }}
               />
-              {bot.name}
+              <span className="flex-1">{bot.name}</span>
+              {unreadBots.has(bot.id) && (
+                <span className="h-2.5 w-2.5 rounded-full bg-nexus-urgent animate-pulse shrink-0" />
+              )}
             </button>
           ))}
         </div>

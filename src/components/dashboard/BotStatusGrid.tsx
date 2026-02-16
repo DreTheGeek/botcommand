@@ -2,7 +2,9 @@ import { motion } from 'framer-motion';
 import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useBotData } from '@/hooks/useBotData';
+import { useEcosystemHealth } from '@/hooks/useExternalData';
 import type { LucideIcon } from 'lucide-react';
 
 const BOT_DEFS = [
@@ -19,23 +21,28 @@ const iconMap: Record<string, LucideIcon> = { Home, Briefcase, TrendingUp, Searc
 export function BotStatusGrid() {
   const navigate = useNavigate();
   const { data: entries } = useBotData({ limit: 50 });
+  const { data: healthData, isLoading: healthLoading } = useEcosystemHealth();
 
-  const getLatestMetric = (botId: string) => {
+  const getStatus = (botId: string) => {
+    // Try external ecosystem_health first
+    const ext = (healthData || []).find((h: any) => h.bot_id === botId);
+    if (ext) return { status: ext.status || 'Active', metric: ext.latest_metric || ext.status_message || '' };
+
+    // Fallback to internal bot_data_entries
     const botEntries = (entries || []).filter((e) => e.bot_id === botId || (botId === 'trading' && e.bot_id === 'tammy'));
-    if (botEntries.length === 0) return 'Awaiting data...';
+    if (botEntries.length === 0) return { status: 'Idle', metric: 'Awaiting data...' };
     const latest = botEntries[0];
     const d = latest.data as Record<string, any>;
-    if (d.message) return d.message;
-    if (d.symbol) return `${d.symbol}: ${d.result === 'W' ? '+' : ''}$${d.pnl || 0}`;
-    if (d.address) return d.address;
-    return `${latest.category} update`;
+    const metric = d.message || (d.symbol ? `${d.symbol}: ${d.result === 'W' ? '+' : ''}$${d.pnl || 0}` : d.address || `${latest.category} update`);
+    return { status: 'Active', metric };
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {BOT_DEFS.map((bot, i) => {
         const Icon = iconMap[bot.icon];
-        const hasData = (entries || []).some((e) => e.bot_id === bot.id || (bot.id === 'trading' && e.bot_id === 'tammy'));
+        const { status, metric } = getStatus(bot.id);
+        const isActive = status !== 'Idle';
         return (
           <motion.div key={bot.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1, duration: 0.4 }}>
             <Card className="group hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 bg-card/80 backdrop-blur">
@@ -48,15 +55,19 @@ export function BotStatusGrid() {
                     <div>
                       <h3 className="font-semibold text-sm">{bot.name}</h3>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`h-2 w-2 rounded-full ${hasData ? 'bg-nexus-success' : 'bg-muted-foreground/40'}`} />
-                        <span className="text-xs text-muted-foreground">{hasData ? 'Active' : 'Idle'}</span>
+                        <span className={`h-2 w-2 rounded-full ${isActive ? 'bg-nexus-success' : 'bg-muted-foreground/40'}`} />
+                        <span className="text-xs text-muted-foreground">{status}</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">{bot.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-mono font-semibold text-primary truncate mr-2">{getLatestMetric(bot.id)}</span>
+                  {healthLoading ? (
+                    <Skeleton className="h-5 w-32" />
+                  ) : (
+                    <span className="text-sm font-mono font-semibold text-primary truncate mr-2">{metric}</span>
+                  )}
                   <button className="text-xs h-7 text-primary hover:text-primary px-2" onClick={() => navigate(bot.route)}>View →</button>
                 </div>
               </CardContent>

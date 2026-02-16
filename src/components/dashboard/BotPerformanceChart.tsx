@@ -4,23 +4,40 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3 } from 'lucide-react';
 import { useBotData } from '@/hooks/useBotData';
+import { usePropertyDeals, useDeals, useTrades, useOpportunities, useProducts, useContentPosts } from '@/hooks/useExternalData';
 
 const BOT_CHART = [
-  { id: 'ronnie', name: 'Ronnie', route: '/bots/ronnie', color: 'hsl(217, 91%, 60%)' },
-  { id: 'ana', name: 'Ana', route: '/bots/ana', color: 'hsl(259, 97%, 76%)' },
-  { id: 'tammy', name: 'Tammy', route: '/bots/trading', color: 'hsl(160, 84%, 39%)' },
-  { id: 'rhianna', name: 'Rhianna', route: '/bots/rhianna', color: 'hsl(38, 92%, 50%)' },
-  { id: 'deondre', name: 'Deondre', route: '/bots/deondre', color: 'hsl(38, 92%, 50%)' },
-  { id: 'carter', name: 'Carter', route: '/bots/carter', color: 'hsl(189, 100%, 50%)' },
+  { id: 'ronnie', name: 'Ronnie', route: '/bots/ronnie', color: 'hsl(217, 91%, 60%)', extHook: 'property_deals' },
+  { id: 'ana', name: 'Ana', route: '/bots/ana', color: 'hsl(259, 97%, 76%)', extHook: 'deals' },
+  { id: 'tammy', name: 'Tammy', route: '/bots/trading', color: 'hsl(160, 84%, 39%)', extHook: 'trades' },
+  { id: 'rhianna', name: 'Rhianna', route: '/bots/rhianna', color: 'hsl(38, 92%, 50%)', extHook: 'opportunities' },
+  { id: 'deondre', name: 'Deondre', route: '/bots/deondre', color: 'hsl(38, 92%, 50%)', extHook: 'products' },
+  { id: 'carter', name: 'Carter', route: '/bots/carter', color: 'hsl(189, 100%, 50%)', extHook: 'content_posts' },
 ];
 
 export function BotPerformanceChart() {
   const navigate = useNavigate();
   const { data: entries } = useBotData({ limit: 200 });
+  const { data: extPropertyDeals } = usePropertyDeals(100);
+  const { data: extDeals } = useDeals(100);
+  const { data: extTrades } = useTrades(200);
+  const { data: extOpportunities } = useOpportunities(100);
+  const { data: extProducts } = useProducts(100);
+  const { data: extContentPosts } = useContentPosts(100);
+
+  const extCounts: Record<string, number> = {
+    property_deals: (extPropertyDeals || []).length,
+    deals: (extDeals || []).length,
+    trades: (extTrades || []).length,
+    opportunities: (extOpportunities || []).length,
+    products: (extProducts || []).length,
+    content_posts: (extContentPosts || []).length,
+  };
 
   const performanceData = BOT_CHART.map((bot) => {
-    const count = (entries || []).filter((e) => e.bot_id === bot.id).length;
-    return { ...bot, value: count };
+    const internalCount = (entries || []).filter((e) => e.bot_id === bot.id).length;
+    const extCount = extCounts[bot.extHook] || 0;
+    return { ...bot, value: extCount || internalCount };
   });
 
   return (

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBotData } from '@/hooks/useBotData';
+import { useDeals } from '@/hooks/useExternalData';
 
 const fmt = {
   money: (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n),
@@ -10,8 +11,10 @@ const fmt = {
 
 function PipelineTab() {
   const { data: entries } = useBotData({ botId: 'ana', category: 'prospect' });
-  const prospects = (entries || []).map((e) => ({ id: e.id, ...(e.data as Record<string, any>) })) as Array<Record<string, any>>;
-  const pipelineValue = prospects.reduce((s, p) => s + (Number(p.dealSize) || Number(p.deal_size) || 0), 0);
+  const { data: extDeals } = useDeals();
+  const internalProspects = (entries || []).map((e) => ({ id: e.id, ...(e.data as Record<string, any>) }));
+  const prospects = (extDeals || []).length > 0 ? (extDeals as any[]) : internalProspects;
+  const pipelineValue = prospects.reduce((s: number, p: any) => s + (Number(p.dealSize) || Number(p.deal_size) || Number(p.value) || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -24,11 +27,11 @@ function PipelineTab() {
             </TableHeader>
             <TableBody>
               {prospects.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No prospects yet</TableCell></TableRow>}
-              {prospects.map((p) => (
+              {prospects.map((p: any) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.company || '—'}</TableCell>
+                  <TableCell className="font-medium">{p.company || p.name || '—'}</TableCell>
                   <TableCell>{p.contact || '—'}</TableCell>
-                  <TableCell className="text-right">{p.dealSize || p.deal_size ? fmt.money(Number(p.dealSize || p.deal_size)) : '—'}</TableCell>
+                  <TableCell className="text-right">{p.dealSize || p.deal_size || p.value ? fmt.money(Number(p.dealSize || p.deal_size || p.value)) : '—'}</TableCell>
                   <TableCell><Badge variant="outline">{p.stage || 'New'}</Badge></TableCell>
                 </TableRow>
               ))}
