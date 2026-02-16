@@ -3,11 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { useBotData } from '@/hooks/useBotData';
 import { useContentPosts, useContentPerformance } from '@/hooks/useExternalData';
-import { scheduledContent, platformStats, contentLibrary, fmt as mockFmt } from '@/data/mockData';
+
+function EmptyState({ message }: { message: string }) {
+  return <p className="text-sm text-muted-foreground text-center py-8">{message}</p>;
+}
+
+const fmtNum = (n: number) => n.toLocaleString();
+const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString() : '—';
 
 function CalendarTab() {
+  const { data: extContent } = useContentPosts();
+  const items = (extContent || []) as any[];
+
   const platformColor = (platform: string) => {
     switch (platform) {
       case 'YouTube': return 'bg-destructive/10 text-destructive border-destructive/30';
@@ -31,68 +39,77 @@ function CalendarTab() {
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Platform</TableHead>
-              <TableHead>Scheduled</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Content</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {scheduledContent.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell className="font-medium">{c.title}</TableCell>
-                <TableCell><Badge variant="outline" className={platformColor(c.platform)}>{c.platform}</Badge></TableCell>
-                <TableCell className="text-sm">{new Date(c.scheduledTime).toLocaleString()}</TableCell>
-                <TableCell><Badge variant="outline" className={statusColor(c.status)}>{c.status}</Badge></TableCell>
-                <TableCell className="text-sm text-muted-foreground">{c.content}</TableCell>
+        {items.length === 0 ? <EmptyState message="No content scheduled yet" /> : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Platform</TableHead>
+                <TableHead>Scheduled</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Content</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {items.map((c: any) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium">{c.title || '—'}</TableCell>
+                  <TableCell><Badge variant="outline" className={platformColor(c.platform || '')}>{c.platform || '—'}</Badge></TableCell>
+                  <TableCell className="text-sm">{fmtDate(c.scheduled_time || c.created_at || '')}</TableCell>
+                  <TableCell><Badge variant="outline" className={statusColor(c.status || '')}>{c.status || '—'}</Badge></TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{c.content || c.description || '—'}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
 }
 
 function PerformanceTab() {
-  const totalViews = platformStats.reduce((s, p) => s + p.views, 0);
-  const totalFollowers = platformStats.reduce((s, p) => s + p.followers, 0);
-  const avgEngagement = platformStats.reduce((s, p) => s + p.engagementRate, 0) / platformStats.length;
+  const { data: extPerf } = useContentPerformance();
+  const perfData = (extPerf || []) as any[];
+  const totalViews = perfData.reduce((s, p: any) => s + (Number(p.views) || Number(p.view_count) || 0), 0);
+  const totalFollowers = perfData.reduce((s, p: any) => s + (Number(p.followers) || 0), 0);
+  const avgEngagement = perfData.length > 0
+    ? perfData.reduce((s, p: any) => s + (Number(p.engagement_rate) || 0), 0) / perfData.length
+    : 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{mockFmt.num(totalViews)}</p><p className="text-xs text-muted-foreground">Total Views</p></CardContent></Card>
-      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{mockFmt.num(totalFollowers)}</p><p className="text-xs text-muted-foreground">Total Followers</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmtNum(totalViews)}</p><p className="text-xs text-muted-foreground">Total Views</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmtNum(totalFollowers)}</p><p className="text-xs text-muted-foreground">Total Followers</p></CardContent></Card>
       <Card><CardContent className="p-4"><p className="text-2xl font-bold text-primary">{avgEngagement.toFixed(1)}%</p><p className="text-xs text-muted-foreground">Avg Engagement</p></CardContent></Card>
     </div>
   );
 }
 
 function PlatformStatsTab() {
+  const { data: extPerf } = useContentPerformance();
+  const perfData = (extPerf || []) as any[];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {platformStats.map((p) => (
-        <Card key={p.platform}>
+      {perfData.length === 0 && <EmptyState message="No platform stats yet" />}
+      {perfData.map((p: any) => (
+        <Card key={p.id || p.platform}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">{p.platform}</CardTitle>
+            <CardTitle className="text-base">{p.platform || '—'}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div><span className="text-muted-foreground">Followers:</span> <span className="font-medium">{mockFmt.num(p.followers)}</span></div>
-              <div><span className="text-muted-foreground">Views:</span> <span className="font-medium">{mockFmt.num(p.views)}</span></div>
-              <div><span className="text-muted-foreground">Engagement:</span> <span className="font-medium">{p.engagementRate}%</span></div>
+              <div><span className="text-muted-foreground">Followers:</span> <span className="font-medium">{fmtNum(Number(p.followers) || 0)}</span></div>
+              <div><span className="text-muted-foreground">Views:</span> <span className="font-medium">{fmtNum(Number(p.views) || Number(p.view_count) || 0)}</span></div>
+              <div><span className="text-muted-foreground">Engagement:</span> <span className="font-medium">{p.engagement_rate || 0}%</span></div>
               <div>
                 <span className="text-muted-foreground">Trend:</span>{' '}
-                <span className={`font-medium ${p.trend >= 0 ? 'text-[hsl(var(--nexus-success))]' : 'text-[hsl(var(--nexus-urgent))]'}`}>
-                  {p.trend >= 0 ? '+' : ''}{p.trend}%
+                <span className={`font-medium ${(Number(p.trend) || 0) >= 0 ? 'text-[hsl(var(--nexus-success))]' : 'text-[hsl(var(--nexus-urgent))]'}`}>
+                  {(Number(p.trend) || 0) >= 0 ? '+' : ''}{p.trend || 0}%
                 </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Top: {p.topPost}</p>
           </CardContent>
         </Card>
       ))}
@@ -102,33 +119,35 @@ function PlatformStatsTab() {
 
 function ContentLibraryTab() {
   const { data: extContent } = useContentPosts();
-  const items = (extContent || []).length > 0 ? (extContent as any[]) : contentLibrary;
+  const items = (extContent || []) as any[];
 
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Platform</TableHead>
-              <TableHead>Post Date</TableHead>
-              <TableHead className="text-right">Views</TableHead>
-              <TableHead className="text-right">Engagement</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((c: any) => (
-              <TableRow key={c.id}>
-                <TableCell className="font-medium">{c.title}</TableCell>
-                <TableCell><Badge variant="outline">{c.platform}</Badge></TableCell>
-                <TableCell>{mockFmt.date(c.postDate || c.post_date || c.created_at || '')}</TableCell>
-                <TableCell className="text-right">{mockFmt.num(Number(c.views || c.view_count || 0))}</TableCell>
-                <TableCell className="text-right">{c.engagement || c.engagement_rate || 0}%</TableCell>
+        {items.length === 0 ? <EmptyState message="No content in library yet" /> : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Platform</TableHead>
+                <TableHead>Post Date</TableHead>
+                <TableHead className="text-right">Views</TableHead>
+                <TableHead className="text-right">Engagement</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {items.map((c: any) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium">{c.title || '—'}</TableCell>
+                  <TableCell><Badge variant="outline">{c.platform || '—'}</Badge></TableCell>
+                  <TableCell>{fmtDate(c.post_date || c.created_at || '')}</TableCell>
+                  <TableCell className="text-right">{fmtNum(Number(c.views) || Number(c.view_count) || 0)}</TableCell>
+                  <TableCell className="text-right">{c.engagement_rate || 0}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

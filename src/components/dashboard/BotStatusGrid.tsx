@@ -29,55 +29,69 @@ export function BotStatusGrid() {
   const { data: contentPosts, isLoading: loadingContent } = useContentPosts();
   const { data: healthData } = useEcosystemHealth();
 
-  const isLoading = loadingDeals || loadingAna || loadingTrades || loadingProducts || loadingOpps || loadingContent;
+  const getLoading = (botId: string): boolean => {
+    switch (botId) {
+      case 'ronnie': return loadingDeals;
+      case 'ana': return loadingAna;
+      case 'trading': return loadingTrades;
+      case 'deondre': return loadingProducts;
+      case 'rhianna': return loadingOpps;
+      case 'carter': return loadingContent;
+      default: return false;
+    }
+  };
 
   const getMetric = (botId: string): { status: string; metric: string } => {
-    // Try ecosystem_health first for status
     const ext = (healthData || []).find((h: any) => h.bot_id === botId);
     const baseStatus = ext?.status || 'Active';
 
     switch (botId) {
       case 'ronnie': {
-        const hotDeals = (propertyDeals || []).filter((d: any) => (Number(d.net_profit) || 0) >= 40000);
-        if (hotDeals.length > 0) return { status: 'Active', metric: `${hotDeals.length} hot deal${hotDeals.length !== 1 ? 's' : ''} (${fmt(hotDeals[0]?.net_profit ?? 0)} profit)` };
-        return { status: baseStatus, metric: (propertyDeals || []).length > 0 ? `${(propertyDeals || []).length} deal${(propertyDeals || []).length !== 1 ? 's' : ''} found` : 'Scanning...' };
+        const d = propertyDeals || [];
+        const hotDeals = d.filter((x: any) => (Number(x.net_profit) || 0) >= 40000);
+        if (d.length === 0) return { status: baseStatus, metric: 'No data yet' };
+        return { status: 'Active', metric: hotDeals.length > 0 ? `${hotDeals.length} hot deal${hotDeals.length !== 1 ? 's' : ''} (${fmt(hotDeals[0]?.net_profit ?? 0)} profit)` : `${d.length} deal${d.length !== 1 ? 's' : ''} found` };
       }
       case 'ana': {
-        const activeDeals = (deals || []).filter((d: any) => ['proposal_sent', 'negotiation'].includes(d.stage));
-        const pipeline = activeDeals.reduce((s: number, d: any) => s + (Number(d.deal_size) || 0), 0);
-        if (pipeline > 0) return { status: 'Active', metric: `${fmt(pipeline)} in pipeline` };
-        return { status: baseStatus, metric: (deals || []).length > 0 ? `${(deals || []).length} deal${(deals || []).length !== 1 ? 's' : ''} tracked` : 'Prospecting...' };
+        const d = deals || [];
+        const active = d.filter((x: any) => ['proposal_sent', 'negotiation'].includes(x.stage));
+        const pipeline = active.reduce((s: number, x: any) => s + (Number(x.deal_size) || 0), 0);
+        if (d.length === 0) return { status: baseStatus, metric: 'No data yet' };
+        return { status: 'Active', metric: pipeline > 0 ? `${fmt(pipeline)} in pipeline` : `${d.length} deal${d.length !== 1 ? 's' : ''} tracked` };
       }
       case 'trading': {
-        const closedTrades = (trades || []).filter((t: any) => t.status === 'closed');
-        const totalPnl = closedTrades.reduce((s: number, t: any) => s + (Number(t.pnl) || 0), 0);
-        const wins = closedTrades.filter((t: any) => (Number(t.pnl) || 0) > 0).length;
-        const winRate = closedTrades.length > 0 ? Math.round((wins / closedTrades.length) * 100) : 0;
-        if (closedTrades.length > 0) return { status: 'Active', metric: `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)} (${winRate}% win)` };
-        return { status: baseStatus, metric: (trades || []).length > 0 ? `${(trades || []).length} open position${(trades || []).length !== 1 ? 's' : ''}` : 'Watching markets...' };
+        const d = trades || [];
+        const closed = d.filter((t: any) => t.status === 'closed');
+        const totalPnl = closed.reduce((s: number, t: any) => s + (Number(t.pnl) || 0), 0);
+        const wins = closed.filter((t: any) => (Number(t.pnl) || 0) > 0).length;
+        const winRate = closed.length > 0 ? Math.round((wins / closed.length) * 100) : 0;
+        if (d.length === 0) return { status: baseStatus, metric: 'No data yet' };
+        return { status: 'Active', metric: closed.length > 0 ? `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)} (${winRate}% win)` : `${d.length} open position${d.length !== 1 ? 's' : ''}` };
       }
       case 'rhianna': {
-        const oppCount = (opportunities || []).length;
-        const highPri = (opportunities || []).filter((o: any) => o.priority === 'high').length;
-        if (oppCount > 0) return { status: 'Active', metric: `${oppCount} opportunit${oppCount !== 1 ? 'ies' : 'y'}${highPri > 0 ? ` (${highPri} high-pri)` : ''}` };
-        return { status: baseStatus, metric: 'Scanning trends...' };
+        const d = opportunities || [];
+        const highPri = d.filter((o: any) => o.priority === 'high').length;
+        if (d.length === 0) return { status: baseStatus, metric: 'No data yet' };
+        return { status: 'Active', metric: `${d.length} opportunit${d.length !== 1 ? 'ies' : 'y'}${highPri > 0 ? ` (${highPri} high-pri)` : ''}` };
       }
       case 'deondre': {
-        const scaling = (products || []).filter((p: any) => p.status === 'scaling');
+        const d = products || [];
+        const scaling = d.filter((p: any) => p.status === 'scaling');
+        if (d.length === 0) return { status: baseStatus, metric: 'No data yet' };
         if (scaling.length > 0) {
           const roas = Number(scaling[0]?.avg_roas) || 0;
           return { status: 'Active', metric: `${scaling.length} scaling (${roas.toFixed(1)}x ROAS)` };
         }
-        return { status: baseStatus, metric: (products || []).length > 0 ? `${(products || []).length} product${(products || []).length !== 1 ? 's' : ''} testing` : 'Finding winners...' };
+        return { status: baseStatus, metric: `${d.length} product${d.length !== 1 ? 's' : ''} testing` };
       }
       case 'carter': {
         const posts = contentPosts || [];
         const totalViews = posts.reduce((s: number, p: any) => s + (Number(p.views) || Number(p.view_count) || 0), 0);
-        if (posts.length > 0) return { status: 'Active', metric: totalViews > 0 ? `${totalViews.toLocaleString()} views` : `${posts.length} post${posts.length !== 1 ? 's' : ''} live` };
-        return { status: baseStatus, metric: 'Creating content...' };
+        if (posts.length === 0) return { status: baseStatus, metric: 'No data yet' };
+        return { status: 'Active', metric: totalViews > 0 ? `${totalViews.toLocaleString()} views` : `${posts.length} post${posts.length !== 1 ? 's' : ''} live` };
       }
       default:
-        return { status: 'Idle', metric: 'Awaiting data...' };
+        return { status: 'Idle', metric: 'No data yet' };
     }
   };
 
@@ -85,6 +99,7 @@ export function BotStatusGrid() {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {BOT_DEFS.map((bot, i) => {
         const Icon = iconMap[bot.icon];
+        const loading = getLoading(bot.id);
         const { status, metric } = getMetric(bot.id);
         const isActive = status !== 'Idle';
         return (
@@ -107,7 +122,7 @@ export function BotStatusGrid() {
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">{bot.description}</p>
                 <div className="flex items-center justify-between">
-                  {isLoading ? (
+                  {loading ? (
                     <Skeleton className="h-5 w-32" />
                   ) : (
                     <span className="text-sm font-mono font-semibold text-primary truncate mr-2">{metric}</span>

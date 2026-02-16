@@ -3,21 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { useBotData } from '@/hooks/useBotData';
 import { useDeals } from '@/hooks/useExternalData';
-import { Phone, Mail, Users } from 'lucide-react';
-import { prospects, proposals, activities, fmt as mockFmt } from '@/data/mockData';
 
 const fmt = {
   money: (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n),
 };
 
+function EmptyState({ message }: { message: string }) {
+  return <p className="text-sm text-muted-foreground text-center py-8">{message}</p>;
+}
+
 function PipelineTab() {
   const { data: extDeals } = useDeals();
-  const deals = (extDeals || []).length > 0 ? (extDeals as any[]) : prospects;
-  const pipelineValue = deals.reduce((s: number, p: any) => s + (Number(p.dealSize) || Number(p.deal_size) || Number(p.value) || 0), 0);
-  const activeDeals = deals.filter((d: any) => !['Won', 'Lost'].includes(d.stage)).length;
-  const wonDeals = deals.filter((d: any) => d.stage === 'Won').length;
+  const deals = (extDeals || []) as any[];
+  const pipelineValue = deals.reduce((s, p) => s + (Number(p.deal_size) || 0), 0);
+  const activeDeals = deals.filter((d) => !['Won', 'Lost'].includes(d.stage)).length;
+  const wonDeals = deals.filter((d) => d.stage === 'Won').length;
   const winRate = deals.length > 0 ? Math.round((wonDeals / deals.length) * 100) : 0;
   const avgDeal = deals.length > 0 ? Math.round(pipelineValue / deals.length) : 0;
 
@@ -42,30 +43,32 @@ function PipelineTab() {
       </div>
       <Card>
         <CardContent className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Company</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead className="text-right">Deal Size</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead className="text-right">Days in Stage</TableHead>
-                <TableHead>Next Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {deals.map((p: any) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.company || p.name || '—'}</TableCell>
-                  <TableCell>{p.contact || '—'}</TableCell>
-                  <TableCell className="text-right">{fmt.money(Number(p.dealSize || p.deal_size || p.value || 0))}</TableCell>
-                  <TableCell><Badge variant="outline" className={stageColor(p.stage)}>{p.stage || 'New'}</Badge></TableCell>
-                  <TableCell className="text-right">{p.daysInStage ?? p.days_in_stage ?? '—'}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{p.nextAction || p.next_action || '—'}</TableCell>
+          {deals.length === 0 ? <EmptyState message="No deals found yet" /> : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead className="text-right">Deal Size</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead className="text-right">Days in Stage</TableHead>
+                  <TableHead>Next Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {deals.map((p: any) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-medium">{p.company || p.name || '—'}</TableCell>
+                    <TableCell>{p.contact || '—'}</TableCell>
+                    <TableCell className="text-right">{fmt.money(Number(p.deal_size || 0))}</TableCell>
+                    <TableCell><Badge variant="outline" className={stageColor(p.stage)}>{p.stage || 'New'}</Badge></TableCell>
+                    <TableCell className="text-right">{p.days_in_stage ?? '—'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{p.next_action || '—'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -73,100 +76,38 @@ function PipelineTab() {
 }
 
 function ProposalsTab() {
-  const statusColor = (status: string) => {
-    switch (status) {
-      case 'Accepted': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
-      case 'Rejected': return 'bg-destructive/10 text-destructive border-destructive/30';
-      case 'Viewed': return 'bg-primary/10 text-primary border-primary/30';
-      default: return '';
-    }
-  };
-
+  // Proposals would come from an external table
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Company</TableHead>
-              <TableHead>Sent Date</TableHead>
-              <TableHead className="text-right">Deal Size</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Engagement</TableHead>
-              <TableHead className="text-right">Views</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {proposals.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.company}</TableCell>
-                <TableCell>{mockFmt.date(p.sentDate)}</TableCell>
-                <TableCell className="text-right">{fmt.money(p.dealSize)}</TableCell>
-                <TableCell><Badge variant="outline" className={statusColor(p.status)}>{p.status}</Badge></TableCell>
-                <TableCell className="text-right">{p.engagementScore}/10</TableCell>
-                <TableCell className="text-right">{p.views}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <EmptyState message="No proposals found yet" />
       </CardContent>
     </Card>
   );
 }
 
 function ActivityLogTab() {
-  const typeIcon = (type: string) => {
-    switch (type) {
-      case 'call': return <Phone className="h-3.5 w-3.5" />;
-      case 'email': return <Mail className="h-3.5 w-3.5" />;
-      case 'meeting': return <Users className="h-3.5 w-3.5" />;
-      default: return null;
-    }
-  };
-
+  // Activity log would come from an external table
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Prospect</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Outcome</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {activities.map((a) => (
-              <TableRow key={a.id}>
-                <TableCell>
-                  <Badge variant="outline" className="gap-1 capitalize">
-                    {typeIcon(a.type)} {a.type}
-                  </Badge>
-                </TableCell>
-                <TableCell className="font-medium">{a.prospect}</TableCell>
-                <TableCell>{a.subject}</TableCell>
-                <TableCell>{mockFmt.date(a.date)}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{a.outcome}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <EmptyState message="No activity recorded yet" />
       </CardContent>
     </Card>
   );
 }
 
 function AnalyticsTab() {
-  const pipelineValue = prospects.reduce((s, p) => s + p.dealSize, 0);
-  const wonValue = prospects.filter((p) => p.stage === 'Won').reduce((s, p) => s + p.dealSize, 0);
+  const { data: extDeals } = useDeals();
+  const deals = (extDeals || []) as any[];
+  const pipelineValue = deals.reduce((s, p) => s + (Number(p.deal_size) || 0), 0);
+  const wonValue = deals.filter((p) => p.stage === 'Won').reduce((s: number, p: any) => s + (Number(p.deal_size) || 0), 0);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <Card><CardContent className="p-4"><p className="text-2xl font-bold">{fmt.money(pipelineValue)}</p><p className="text-xs text-muted-foreground">Total Pipeline</p></CardContent></Card>
       <Card><CardContent className="p-4"><p className="text-2xl font-bold text-[hsl(var(--nexus-success))]">{fmt.money(wonValue)}</p><p className="text-xs text-muted-foreground">Won Revenue</p></CardContent></Card>
-      <Card><CardContent className="p-4"><p className="text-2xl font-bold">{proposals.length}</p><p className="text-xs text-muted-foreground">Proposals Sent</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-2xl font-bold">0</p><p className="text-xs text-muted-foreground">Proposals Sent</p></CardContent></Card>
     </div>
   );
 }

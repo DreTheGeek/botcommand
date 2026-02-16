@@ -3,7 +3,6 @@ import { DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useBotData, aggregateRevenue } from '@/hooks/useBotData';
 import { useRevenueTracking } from '@/hooks/useExternalData';
 
 const fmt = (n: number) =>
@@ -18,13 +17,17 @@ const sources = [
 
 export function RevenueDashboard() {
   const navigate = useNavigate();
-  const { data: entries } = useBotData({ categories: ['trade', 'revenue', 'property_deal', 'product'] });
   const { data: externalRevenue, isLoading } = useRevenueTracking();
 
-  // Merge: prefer external data if available
-  const extTotal = (externalRevenue || []).reduce((s: number, r: any) => s + (Number(r.amount) || Number(r.revenue) || 0), 0);
-  const rev = aggregateRevenue(entries || []);
-  const total = extTotal > 0 ? extTotal : rev.total;
+  const revenueData = externalRevenue || [];
+  const total = revenueData.reduce((s: number, r: any) => s + (Number(r.amount) || Number(r.revenue) || 0), 0);
+
+  // Break down by source if data has a source/category field
+  const getSourceRevenue = (key: string) => {
+    return revenueData
+      .filter((r: any) => (r.source || r.category || '').toLowerCase().includes(key))
+      .reduce((s: number, r: any) => s + (Number(r.amount) || Number(r.revenue) || 0), 0);
+  };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
@@ -51,7 +54,7 @@ export function RevenueDashboard() {
                 onClick={() => navigate(s.route)}
               >
                 <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
-                <p className={`text-lg font-mono font-bold ${s.color}`}>{fmt(rev[s.key])}</p>
+                <p className={`text-lg font-mono font-bold ${s.color}`}>{fmt(getSourceRevenue(s.key))}</p>
               </div>
             ))}
           </div>
