@@ -12,6 +12,10 @@ function useExternalTable<T = Record<string, any>>(
   return useQuery<T[]>({
     queryKey: ['external', table, limit, orderBy, ascending, filters],
     queryFn: async () => {
+      if (!externalSupabase) {
+        console.warn('External Supabase client not configured (missing anon key)');
+        return [];
+      }
       let q = externalSupabase
         .from(table)
         .select('*')
