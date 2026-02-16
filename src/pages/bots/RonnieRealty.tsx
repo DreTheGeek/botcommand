@@ -3,26 +3,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { useBotData } from '@/hooks/useBotData';
 import { usePropertyDeals } from '@/hooks/useExternalData';
 import { Target, DollarSign, CalendarDays, MapPin } from 'lucide-react';
-import { properties, purchases, fmt as mockFmt } from '@/data/mockData';
 
 const fmt = {
   money: (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n),
+  date: (d: string) => d ? new Date(d).toLocaleDateString() : '—',
 };
 
-function OverviewTab() {
-  const { data: entries } = useBotData({ botId: 'ronnie', category: 'property_deal' });
-  const { data: extDeals } = usePropertyDeals();
-  const internalDeals = (extDeals || []).length > 0 ? (extDeals as Record<string, any>[]) : properties;
-  const deals = (entries || []).length > 0 && internalDeals.length === 0
-    ? (entries || []).map((e) => e.data as Record<string, any>)
-    : internalDeals;
+function EmptyState({ message }: { message: string }) {
+  return <p className="text-sm text-muted-foreground text-center py-8">{message}</p>;
+}
 
-  const hotDeals = (deals as any[]).filter((d: any) => d.status === 'Hot Deal' || d.status === 'hot').length;
-  const totalProfit = (deals as any[]).reduce((s: number, d: any) => s + (Number(d.netProfit) || Number(d.net_profit) || Number(d.profit) || 0), 0);
-  const states = new Set((deals as any[]).map((d: any) => d.state).filter(Boolean));
+function OverviewTab() {
+  const { data: extDeals } = usePropertyDeals();
+  const deals = (extDeals || []) as any[];
+
+  const hotDeals = deals.filter((d) => d.status === 'Hot Deal' || d.status === 'hot').length;
+  const totalProfit = deals.reduce((s, d) => s + (Number(d.net_profit) || 0), 0);
+  const states = new Set(deals.map((d) => d.state).filter(Boolean));
 
   const metrics = [
     { label: 'Hot Deals', value: hotDeals, icon: Target, color: 'text-[hsl(var(--nexus-urgent))]' },
@@ -32,7 +31,7 @@ function OverviewTab() {
   ];
 
   const stateCounts: Record<string, number> = {};
-  (deals as any[]).forEach((d: any) => { if (d.state) stateCounts[d.state] = (stateCounts[d.state] || 0) + 1; });
+  deals.forEach((d) => { if (d.state) stateCounts[d.state] = (stateCounts[d.state] || 0) + 1; });
 
   return (
     <div className="space-y-6">
@@ -52,6 +51,7 @@ function OverviewTab() {
       <Card>
         <CardHeader><CardTitle className="text-base">Active States</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap gap-2">
+          {Object.keys(stateCounts).length === 0 && <EmptyState message="No state data yet" />}
           {Object.entries(stateCounts).map(([state, count]) => (
             <Badge key={state} variant="outline" className="text-sm">{state} ({count} deal{count > 1 ? 's' : ''})</Badge>
           ))}
@@ -63,13 +63,12 @@ function OverviewTab() {
 
 function DealPipelineTab() {
   const { data: extDeals } = usePropertyDeals();
-  const deals = (extDeals || []).length > 0 ? (extDeals as any[]) : properties;
+  const deals = (extDeals || []) as any[];
 
   const statusColor = (status: string) => {
     switch (status) {
       case 'Hot Deal': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
       case 'Warm': return 'bg-primary/10 text-primary border-primary/30';
-      case 'Watching': return '';
       default: return '';
     }
   };
@@ -84,57 +83,62 @@ function DealPipelineTab() {
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Address</TableHead>
-              <TableHead>County</TableHead>
-              <TableHead>State</TableHead>
-              <TableHead>Sale Date</TableHead>
-              <TableHead className="text-right">Min Bid</TableHead>
-              <TableHead className="text-right">Net Profit</TableHead>
-              <TableHead className="text-center">Score</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {deals.map((d: any) => (
-              <TableRow key={d.id}>
-                <TableCell className="font-medium">{d.address}</TableCell>
-                <TableCell>{d.county}</TableCell>
-                <TableCell>{d.state}</TableCell>
-                <TableCell>{mockFmt.date(d.saleDate || d.sale_date || '')}</TableCell>
-                <TableCell className="text-right">{fmt.money(Number(d.minBid || d.min_bid || 0))}</TableCell>
-                <TableCell className="text-right text-[hsl(var(--nexus-success))]">{fmt.money(Number(d.netProfit || d.net_profit || d.profit || 0))}</TableCell>
-                <TableCell className="text-center">
-                  <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${scoreColor(d.dealScore || d.deal_score || 0)}`}>
-                    {d.dealScore || d.deal_score || '—'}
-                  </span>
-                </TableCell>
-                <TableCell><Badge variant="outline" className={statusColor(d.status)}>{d.status}</Badge></TableCell>
+        {deals.length === 0 ? <EmptyState message="No deals found yet" /> : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Address</TableHead>
+                <TableHead>County</TableHead>
+                <TableHead>State</TableHead>
+                <TableHead>Sale Date</TableHead>
+                <TableHead className="text-right">Min Bid</TableHead>
+                <TableHead className="text-right">Net Profit</TableHead>
+                <TableHead className="text-center">Score</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {deals.map((d: any) => (
+                <TableRow key={d.id}>
+                  <TableCell className="font-medium">{d.address}</TableCell>
+                  <TableCell>{d.county}</TableCell>
+                  <TableCell>{d.state}</TableCell>
+                  <TableCell>{fmt.date(d.sale_date || '')}</TableCell>
+                  <TableCell className="text-right">{fmt.money(Number(d.min_bid || 0))}</TableCell>
+                  <TableCell className="text-right text-[hsl(var(--nexus-success))]">{fmt.money(Number(d.net_profit || 0))}</TableCell>
+                  <TableCell className="text-center">
+                    <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${scoreColor(d.deal_score || 0)}`}>
+                      {d.deal_score || '—'}
+                    </span>
+                  </TableCell>
+                  <TableCell><Badge variant="outline" className={statusColor(d.status)}>{d.status}</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
 }
 
 function CalendarTab() {
-  const deals = properties.filter((p) => p.saleDate);
+  const { data: extDeals } = usePropertyDeals();
+  const deals = ((extDeals || []) as any[]).filter((p) => p.sale_date);
+
   return (
     <Card>
       <CardHeader><CardTitle className="text-base">Upcoming Tax Sale Dates</CardTitle></CardHeader>
       <CardContent className="space-y-3">
-        {deals.sort((a, b) => a.saleDate.localeCompare(b.saleDate)).map((d) => (
+        {deals.length === 0 && <EmptyState message="No upcoming sales found" />}
+        {deals.sort((a, b) => (a.sale_date || '').localeCompare(b.sale_date || '')).map((d) => (
           <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
             <div>
               <p className="font-medium text-sm">{d.address}</p>
               <p className="text-xs text-muted-foreground">{d.county}, {d.state}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium">{mockFmt.date(d.saleDate)}</p>
+              <p className="text-sm font-medium">{fmt.date(d.sale_date)}</p>
               <Badge variant="outline" className="text-[10px]">{d.status}</Badge>
             </div>
           </div>
@@ -145,10 +149,11 @@ function CalendarTab() {
 }
 
 function AnalyticsTab() {
-  const deals = properties;
-  const totalProfit = deals.reduce((s, d) => s + d.netProfit, 0);
-  const avgScore = Math.round(deals.reduce((s, d) => s + d.dealScore, 0) / deals.length);
-  const avgProfit = Math.round(totalProfit / deals.length);
+  const { data: extDeals } = usePropertyDeals();
+  const deals = (extDeals || []) as any[];
+  const totalProfit = deals.reduce((s, d) => s + (Number(d.net_profit) || 0), 0);
+  const avgScore = deals.length > 0 ? Math.round(deals.reduce((s, d) => s + (Number(d.deal_score) || 0), 0) / deals.length) : 0;
+  const avgProfit = deals.length > 0 ? Math.round(totalProfit / deals.length) : 0;
 
   return (
     <div className="space-y-4">
@@ -162,42 +167,11 @@ function AnalyticsTab() {
 }
 
 function PurchasesTab() {
-  const statusColor = (status: string) => {
-    switch (status) {
-      case 'Sold': return 'bg-destructive/10 text-destructive border-destructive/30';
-      case 'Renovating': return '';
-      case 'Owned': return 'bg-primary/10 text-primary border-primary/30';
-      default: return '';
-    }
-  };
-
+  // Purchases would come from an external table; show empty state for now
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Address</TableHead>
-              <TableHead className="text-right">Purchase Price</TableHead>
-              <TableHead className="text-right">Repairs</TableHead>
-              <TableHead className="text-right">Sold Price</TableHead>
-              <TableHead className="text-right">Profit</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {purchases.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.address}</TableCell>
-                <TableCell className="text-right">{fmt.money(p.purchasePrice)}</TableCell>
-                <TableCell className="text-right">{fmt.money(p.repairs)}</TableCell>
-                <TableCell className="text-right">{p.soldPrice ? fmt.money(p.soldPrice) : '—'}</TableCell>
-                <TableCell className="text-right text-[hsl(var(--nexus-success))]">{p.actualProfit ? fmt.money(p.actualProfit) : '—'}</TableCell>
-                <TableCell><Badge variant="outline" className={statusColor(p.status)}>{p.status}</Badge></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <EmptyState message="No purchases recorded yet" />
       </CardContent>
     </Card>
   );
