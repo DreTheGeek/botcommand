@@ -1,105 +1,70 @@
 
-# Restore Premium CRM Bot Pages
+# Remove All Mock/Fake Data -- Only Show Real Database Data
 
-All the rich mock data already exists in `src/data/mockData.ts` -- properties, purchases, prospects, proposals, trades, open positions, strategies, risk data, competitors, trends, content schedules, platform stats, and more. The current bot pages only use 2-3 basic tabs each. This plan restores the full detailed sub-tab experience shown in your screenshots while keeping all working external database hooks.
+You want the beautiful CRM design to stay exactly as-is, but only display data that actually comes from your database. No made-up numbers, no fake fallbacks. If there's no data yet, it shows empty states or zeros -- not fake entries.
 
 ## What Changes
 
-### 1. Ronnie Realty (`src/pages/bots/RonnieRealty.tsx`) -- Full Rewrite
-**Tabs**: Overview, Deal Pipeline, Calendar, Analytics, My Purchases, Settings
+### Dashboard Components (4 files)
 
-- **Overview**: 4 stat cards with icons (Hot Deals, Total Profit Potential, Upcoming Sales, States Covered) + Active States section showing state badges with deal counts (e.g., "FL (3 deals)")
-- **Deal Pipeline**: Full data table with columns: Address, County, State, Sale Date, Min Bid, Net Profit, Score (colored circle badges), Status (colored badges: Hot Deal=green, Warm=cyan, Watching=outline, Passed=outline) + Export CSV button
-- **Calendar**: Upcoming tax sale dates from mock data
-- **Analytics**: Summary stats from the deals data
-- **My Purchases**: Table with Address, Purchase Price, Repairs, Sold Price, Profit (green text), Status (Sold=red badge, Renovating=outline, Owned=cyan badge)
-- **Settings**: Two cards side-by-side -- "Deal Criteria" (Min Profit Threshold $40,000, Max Purchase Price $50,000, Property Types SFH/Duplex, Min Deal Score 60) and "Bot Controls" (Bot Active toggle, States Monitored: 31, Counties Tracked: 247)
+**BotStatusGrid.tsx** -- Keep the card design, remove fallback text like "Scanning...", "Watching markets...", "Finding winners...", "Creating content...". When there's no data, show "No data yet" instead of fake activity messages.
 
-Data sources: External `usePropertyDeals()` for live data with fallback to `properties` and `purchases` from mockData.
+**QuickStats.tsx** -- Show actual counts from external database only. Remove the internal `useBotData` fallback. If counts are 0, show 0.
 
-### 2. Ana Sales (`src/pages/bots/AnaSales.tsx`) -- Full Rewrite
-**Tabs**: Pipeline, Proposals, Activity Log, Analytics, Settings
+**RevenueDashboard.tsx** -- Remove the `useBotData`/`aggregateRevenue` fallback. Only show revenue from the external `useRevenueTracking()` hook. If no revenue data exists, show $0.
 
-- **Pipeline**: Summary stats (Total Pipeline, Active Deals, Avg Deal Size, Win Rate) + full table with Company, Contact, Deal Size, Stage (colored badges), Days in Stage, Next Action
-- **Proposals**: Table with Company, Sent Date, Deal Size, Status, Engagement Score, Views
-- **Activity Log**: Table with Type (icon badges for call/email/meeting), Prospect, Subject, Date, Outcome
-- **Settings**: Bot configuration cards
+**AlertCenter.tsx** -- Remove the internal `useBotData` alerts fallback. Only show alerts from `useSystemNotifications()`. If none exist, show "No alerts yet" (which it already does).
 
-Data sources: External `useDeals()` with fallback to `prospects`, `proposals`, `activities` from mockData.
+### Bot Detail Pages (6 files)
 
-### 3. Tammy Trader (`src/pages/bots/TradingBot.tsx`) -- Full Rewrite
-**Tabs**: Dashboard, Open Positions, Trade History, Strategies, Risk Monitor, Settings
+Each bot page currently does this pattern:
+```
+const data = externalData.length > 0 ? externalData : mockData;
+```
 
-- **Dashboard**: 4 stat cards (Total P&L, Win Rate, Total Trades, Avg Profit) 
-- **Open Positions**: Table with Symbol, Strategy, Shares, Entry Price, Current Price, P&L, Stop Loss, Take Profit, Hold Time
-- **Trade History**: Full table with Date, Symbol, Strategy, Entry, Exit, P&L (green/red), Result badge, Shares, Confidence
-- **Strategies**: Cards showing strategy name, trades count, win rate, avg profit, max drawdown, Sharpe ratio, status
-- **Risk Monitor**: Warning banner ("One or more risk limits approaching threshold") + 3 progress bar cards (Daily Loss 142/200 71%, Positions 3/5 60%, Trades Today 7/15 46.7%) with colored bars + Buying Power card showing $12,500
-- **Settings**: Trading configuration
+This will change to:
+```
+const data = externalData || [];
+```
 
-Data sources: External `useTrades()` with fallback to `trades`, `openPositions`, `strategies`, `riskData` from mockData.
+So every tab shows only real data, with a clean empty state when there's nothing.
 
-### 4. Rhianna Research (`src/pages/bots/RhiannaResearch.tsx`) -- Full Rewrite
-**Tabs**: Today's Brief, Opportunities, Competitors, Trends, Content Ideas, Settings
+**RonnieRealty.tsx** -- Remove imports of `properties`, `purchases` from mockData. Overview stats, Deal Pipeline table, My Purchases table all show only external data. Empty tables show "No deals found" message.
 
-- **Today's Brief**: "Daily Intelligence Brief -- Feb 14, 2026" card with accordion/collapsible sections: Top Insights (3), Opportunities (3), Threats (2), Content Opportunities (2), Recommended Actions (3) -- each with bullet lists and teal icons
-- **Opportunities**: Table/cards showing problem, source, business type, deal size, tier (Gold/Silver/Bronze badges)
-- **Competitors**: Grid of cards -- each with company name, industry badge, Threat Level progress bar (red/orange/yellow based on level, e.g., 8/10), last activity text, two-column Strengths (green) / Weaknesses (red) bullet lists
-- **Trends**: Cards with trend name, category, score, stage badge, monetization potential, signal bullets
-- **Content Ideas**: Table with topic, platform, why it will perform well, urgency badge
-- **Settings**: Research configuration
+**AnaSales.tsx** -- Remove imports of `prospects`, `proposals`, `activities` from mockData. Pipeline, Proposals, Activity Log tabs show only external data.
 
-Data sources: External `useOpportunities()` with fallback to `dailyBrief`, `opportunities`, `competitors`, `trends`, `contentIdeas` from mockData.
+**TradingBot.tsx** -- Remove imports of `mockTrades`, `openPositions`, `strategies`, `riskData` from mockData. Dashboard stats, Open Positions, Trade History, Strategies, Risk Monitor all use only external data. Risk Monitor shows 0/0 progress bars when no data exists.
 
-### 5. Deondre Dropshipping (`src/pages/bots/DeondreDropshipping.tsx`) -- Full Rewrite
-**Tabs**: Products, Performance, Ad Campaigns, Suppliers, Settings
+**RhiannaResearch.tsx** -- Remove imports of `dailyBrief`, mock `opportunities`, `competitors`, `trends`, `contentIdeas` from mockData. Today's Brief shows empty sections, Competitors shows empty grid, etc.
 
-- **Products**: Grid of product cards -- each showing product name, status badge (Scaling=cyan, Testing=gray, Killed=outline), large colored ROAS number (green if good, red if bad), Revenue, Orders, Ad Spend, CVR in a 2x2 grid layout
-- **Performance**: 4 stat cards (Total Revenue, Total Ad Spend, Net Profit, Blended ROAS) + table with Product, Status, Revenue, ROAS (colored), Actions column with "Scale" and "Kill" buttons
-- **Ad Campaigns**: Table with Product, Platform, Budget, Spend, Revenue, ROAS, CTR, Status
-- **Suppliers**: Table/cards with Name, Platform, Rating, Avg Ship Time, Products Supplied, Issues
-- **Settings**: Dropshipping configuration
+**DeondreDropshipping.tsx** -- Remove imports of `products`, `campaigns`, `suppliers` from mockData. Product grid and performance tables show only external data.
 
-Data sources: External `useProducts()` with fallback to `products`, `campaigns`, `suppliers` from mockData.
+**CarterContent.tsx** -- Remove imports of `scheduledContent`, `platformStats`, `contentLibrary` from mockData. Calendar and stats show only external data.
 
-### 6. Carter Content (`src/pages/bots/CarterContent.tsx`) -- Full Rewrite
-**Tabs**: Calendar, Performance, Platform Stats, Content Library, Settings
+### What Stays the Same
 
-- **Calendar**: Full table with Title, Platform (colored badges -- YouTube=red, TikTok=cyan, X=gray, Instagram=outline, LinkedIn=blue, Facebook=blue), Scheduled datetime, Status (Scheduled=cyan, Published=outline, Draft=outline), Content description
-- **Performance**: Aggregate stats from platform data (Total Views, Total Followers, Avg Engagement)
-- **Platform Stats**: Cards per platform showing followers, views, engagement rate, top post, trend percentage
-- **Content Library**: Table with Title, Platform, Post Date, Views, Engagement %
-- **Settings**: Content configuration
-
-Data sources: External `useContentPosts()` and `useContentPerformance()` with fallback to `scheduledContent`, `platformStats`, `contentLibrary` from mockData.
-
-## What Stays the Same
-
-- All external data hooks in `src/hooks/useExternalData.ts` (untouched)
-- The `BotPageLayout` component (reused for all pages -- provides the header with icon, name, status badge, description, and tab navigation)
-- The `src/data/mockData.ts` file (already has all the data)
-- Dashboard bot cards and their external data metrics
-- All routing, authentication, sidebar navigation
-- The dark theme with navy/black gradients and teal/purple accents
+- The entire visual design, layout, colors, tabs, card structure -- all identical
+- All external data hooks in `useExternalData.ts` -- untouched
+- The `mockData.ts` file itself stays (no need to delete it, just stop importing from it)
+- Sidebar, routing, authentication, theme -- all untouched
+- `BotPageLayout` component -- untouched
 
 ## Technical Details
 
-### Files to modify (6 bot page files):
-- `src/pages/bots/RonnieRealty.tsx` -- from ~114 lines to ~350 lines
-- `src/pages/bots/AnaSales.tsx` -- from ~70 lines to ~300 lines
-- `src/pages/bots/TradingBot.tsx` -- from ~100 lines to ~400 lines
-- `src/pages/bots/RhiannaResearch.tsx` -- from ~60 lines to ~350 lines
-- `src/pages/bots/DeondreDropshipping.tsx` -- from ~70 lines to ~350 lines
-- `src/pages/bots/CarterContent.tsx` -- from ~60 lines to ~350 lines
+### Files to modify:
+- `src/components/dashboard/BotStatusGrid.tsx` -- remove fake status text fallbacks
+- `src/components/dashboard/QuickStats.tsx` -- remove useBotData fallback
+- `src/components/dashboard/RevenueDashboard.tsx` -- remove useBotData/aggregateRevenue fallback
+- `src/components/dashboard/AlertCenter.tsx` -- remove useBotData fallback
+- `src/pages/bots/RonnieRealty.tsx` -- remove mock data imports/fallbacks
+- `src/pages/bots/AnaSales.tsx` -- remove mock data imports/fallbacks
+- `src/pages/bots/TradingBot.tsx` -- remove mock data imports/fallbacks
+- `src/pages/bots/RhiannaResearch.tsx` -- remove mock data imports/fallbacks
+- `src/pages/bots/DeondreDropshipping.tsx` -- remove mock data imports/fallbacks
+- `src/pages/bots/CarterContent.tsx` -- remove mock data imports/fallbacks
 
-### Data strategy per tab:
-Each tab will first check for external database data. If external data exists, it displays that. If not, it falls back to the rich mock data from `mockData.ts`. This means the pages look fully populated immediately (with mock data) and seamlessly switch to real data as the external database gets populated.
+### Empty state pattern for all tables:
+When no data exists, each table/grid will show a centered message like "No deals found yet" or "No trades recorded" in muted text -- clean and professional, not broken-looking.
 
-### UI components used:
-- Existing: Card, Badge, Table, Tabs, Progress (from Radix/shadcn)
-- Accordion/Collapsible (already installed) for Rhianna's Daily Brief sections
-- Switch (already installed) for Settings toggles
-- No new dependencies needed
-
-### Settings tabs:
-Each bot gets a Settings tab with static configuration cards showing bot-specific parameters and a "Bot Active" toggle switch -- matching the Ronnie Settings screenshot pattern.
+### Result:
+Same gorgeous CRM design. Every number you see is real. When you add data to your database, it shows up. No confusion about what's real and what's fake.
