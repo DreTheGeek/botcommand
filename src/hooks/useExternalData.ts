@@ -41,7 +41,7 @@ function useExternalTable<T = Record<string, any>>(
 }
 
 export function useEcosystemHealth() {
-  return useExternalTable('ecosystem_health');
+  return useExternalTable('ecosystem_health', { orderBy: 'updated_at' });
 }
 
 export function useRevenueTracking() {
@@ -77,5 +77,9 @@ export function useProducts(limit = 100) {
 }
 
 export function useContentPosts(limit = 100) {
-  return useExternalTable('content_posts', { limit });
+  return useExternalTable('content_posts', { limit, orderBy: 'id', ascending: false });
+}
+
+export function useContentPerformance(limit = 100) {
+  return useExternalTable('content_performance', { limit, orderBy: 'id', ascending: false });
 }
