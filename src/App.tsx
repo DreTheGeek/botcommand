@@ -16,6 +16,9 @@ import TradingBot from "./pages/bots/TradingBot";
 import RhiannaResearch from "./pages/bots/RhiannaResearch";
 import DeondreDropshipping from "./pages/bots/DeondreDropshipping";
 import CarterContent from "./pages/bots/CarterContent";
+import OptimusPrime from "./pages/bots/OptimusPrime";
+import CleahCoding from "./pages/bots/CleahCoding";
+import BennyBusinessMaker from "./pages/bots/BennyBusinessMaker";
 import RevenueHub from "./pages/RevenueHub";
 import CalendarPage from "./pages/CalendarPage";
 import AnalyticsHub from "./pages/AnalyticsHub";
@@ -54,6 +57,9 @@ const App = () => (
                       <Route path="/bots/rhianna" element={<RhiannaResearch />} />
                       <Route path="/bots/deondre" element={<DeondreDropshipping />} />
                       <Route path="/bots/carter" element={<CarterContent />} />
+                      <Route path="/bots/optimus" element={<OptimusPrime />} />
+                      <Route path="/bots/cleah" element={<CleahCoding />} />
+                      <Route path="/bots/benny" element={<BennyBusinessMaker />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </MainLayout>

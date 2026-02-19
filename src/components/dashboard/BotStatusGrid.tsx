@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video } from 'lucide-react';
+import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,15 +7,18 @@ import { usePropertyDeals, useTrades, useDeals, useProducts, useOpportunities, u
 import type { LucideIcon } from 'lucide-react';
 
 const BOT_DEFS = [
+  { id: 'optimus', name: 'Optimus Prime', icon: 'Bot', description: 'Supreme commander — monitors all 9 bots, routes tasks, and maintains system health', route: '/bots/optimus' },
   { id: 'ronnie', name: 'Ronnie Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states', route: '/bots/ronnie' },
   { id: 'ana', name: 'Ana Sales Analyst', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals', route: '/bots/ana' },
   { id: 'trading', name: 'Tammy Trader', icon: 'TrendingUp', description: 'Executes day trades, swing trades, manages portfolio with strict risk limits', route: '/bots/trading' },
   { id: 'rhianna', name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them', route: '/bots/rhianna' },
   { id: 'deondre', name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day', route: '/bots/deondre' },
   { id: 'carter', name: 'Carter Content', icon: 'Video', description: 'Creates viral content across YouTube, TikTok, X, Instagram, LinkedIn daily', route: '/bots/carter' },
+  { id: 'cleah', name: 'Cleah Coding', icon: 'Code2', description: 'Software engineer — reviews code, debugs issues, and designs architecture', route: '/bots/cleah' },
+  { id: 'benny', name: 'Benny Business Maker', icon: 'Building2', description: 'Business strategist — builds revenue streams, scales operations, identifies opportunities', route: '/bots/benny' },
 ];
 
-const iconMap: Record<string, LucideIcon> = { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video };
+const iconMap: Record<string, LucideIcon> = { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2 };
 
 const fmt = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
@@ -90,6 +93,12 @@ export function BotStatusGrid() {
         if (posts.length === 0) return { status: baseStatus, metric: 'No data yet' };
         return { status: 'Active', metric: totalViews > 0 ? `${totalViews.toLocaleString()} views` : `${posts.length} post${posts.length !== 1 ? 's' : ''} live` };
       }
+      case 'optimus':
+        return { status: 'Active', metric: '9 bots online' };
+      case 'cleah':
+        return { status: 'Active', metric: 'Ready for tasks' };
+      case 'benny':
+        return { status: 'Active', metric: 'Ready for tasks' };
       default:
         return { status: 'Idle', metric: 'No data yet' };
     }

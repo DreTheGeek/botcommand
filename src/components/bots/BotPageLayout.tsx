@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video } from 'lucide-react';
+import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
@@ -10,10 +10,13 @@ const BOT_DEFS: Record<string, { name: string; icon: string; description: string
   rhianna: { name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them' },
   deondre: { name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day' },
   carter: { name: 'Carter Content', icon: 'Video', description: 'Creates viral content across YouTube, TikTok, X, Instagram, LinkedIn daily' },
+  optimus: { name: 'Optimus Prime', icon: 'Bot', description: 'Bot orchestrator — monitors all 9 bots and the shared knowledge base' },
+  cleah: { name: 'Cleah Coding', icon: 'Code2', description: 'Software engineering expert for code review, debugging, and architecture' },
+  benny: { name: 'Benny Business Maker', icon: 'Building2', description: 'Build, scale, and optimize businesses with actionable strategies' },
 };
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Home, Briefcase, TrendingUp, Search, ShoppingBag, Video,
+  Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2,
 };
 
 interface Tab {
