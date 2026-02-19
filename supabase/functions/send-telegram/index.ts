@@ -67,6 +67,67 @@ async function getCrossBotContext(serviceClient: any, targetBotId: string, userI
   }
 }
 
+async function sendToBot(
+  botId: string,
+  message: string,
+  messageType: string,
+  fileUrl: string | null,
+  parseMode: string | null,
+  contextSummary: string | null
+): Promise<{ ok: boolean; result?: any; error?: string }> {
+  const botConfig = BOT_MAP[botId];
+  if (!botConfig) return { ok: false, error: `Unknown bot_id: ${botId}` };
+
+  const botToken = Deno.env.get(botConfig.tokenKey);
+  const chatId = Deno.env.get(botConfig.chatKey);
+
+  if (!botToken || !chatId) {
+    return { ok: false, error: `Secrets not configured for bot: ${botId}` };
+  }
+
+  let tgResponse: Response;
+  let tgResult: any;
+
+  if (messageType === "photo" && fileUrl) {
+    let caption = message || "";
+    if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
+    tgResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, photo: fileUrl, caption: caption || undefined }),
+    });
+    tgResult = await tgResponse.json();
+  } else if (messageType === "document" && fileUrl) {
+    let caption = message || "";
+    if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
+    tgResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, document: fileUrl, caption: caption || undefined }),
+    });
+    tgResult = await tgResponse.json();
+  } else {
+    let telegramText = message;
+    if (contextSummary) {
+      telegramText = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${message}`;
+    }
+    const body: Record<string, string> = { chat_id: chatId, text: telegramText };
+    if (parseMode) body.parse_mode = parseMode;
+    tgResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    tgResult = await tgResponse.json();
+  }
+
+  return {
+    ok: tgResponse.ok,
+    result: tgResult,
+    error: tgResponse.ok ? undefined : `Telegram error for ${botId}: ${JSON.stringify(tgResult)}`,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -96,107 +157,111 @@ Deno.serve(async (req) => {
       });
     }
 
-    const userId = data.claims.sub;
-    const { bot_id, message, parse_mode, type, file_url, file_name } = await req.json();
+    const userId = data.claims.sub as string;
+    const body = await req.json();
+    const {
+      bot_id,
+      bot_ids,
+      message,
+      parse_mode,
+      type,
+      file_url,
+      file_name,
+      group_chat_id,
+    } = body;
 
-    if (!bot_id || (!message && !file_url)) {
-      return new Response(JSON.stringify({ error: "bot_id and message/file_url are required" }), {
+    const messageType = type || "text";
+
+    // Validate: need at least one bot target and a message/file
+    const targetBotIds: string[] = bot_ids?.length ? bot_ids : (bot_id ? [bot_id] : []);
+    if (targetBotIds.length === 0 || (!message && !file_url)) {
+      return new Response(JSON.stringify({ error: "bot_id (or bot_ids) and message/file_url are required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const botConfig = BOT_MAP[bot_id];
-    if (!botConfig) {
-      return new Response(JSON.stringify({ error: `Unknown bot_id: ${bot_id}` }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const botToken = Deno.env.get(botConfig.tokenKey);
-    const chatId = Deno.env.get(botConfig.chatKey);
-
-    if (!botToken || !chatId) {
-      return new Response(JSON.stringify({ error: `Secrets not configured for bot: ${bot_id}` }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Fetch cross-bot context
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-    const contextSummary = await getCrossBotContext(serviceClient, bot_id, userId as string);
 
-    const messageType = type || "text";
-    let tgResult: any;
-    let tgResponse: Response;
+    // Group message: send to all bots, skip cross-bot context for group messages
+    if (targetBotIds.length > 1) {
+      const results: Record<string, any> = {};
+      const persistRows: any[] = [];
 
-    if (messageType === "photo" && file_url) {
-      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
-      let caption = message || "";
-      if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
-      tgResponse = await fetch(telegramUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, photo: file_url, caption: caption || undefined }),
-      });
-      tgResult = await tgResponse.json();
-    } else if (messageType === "document" && file_url) {
-      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendDocument`;
-      let caption = message || "";
-      if (contextSummary) caption = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${caption}`;
-      tgResponse = await fetch(telegramUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, document: file_url, caption: caption || undefined }),
-      });
-      tgResult = await tgResponse.json();
-    } else {
-      let telegramText = message;
-      if (contextSummary) {
-        telegramText = `--- Cross-Bot Context ---\n${contextSummary}\n---\n\n${message}`;
+      await Promise.all(
+        targetBotIds.map(async (bid) => {
+          const r = await sendToBot(bid, message, messageType, file_url || null, parse_mode || null, null);
+          results[bid] = r;
+          if (r.ok) {
+            persistRows.push({
+              user_id: userId,
+              bot_id: bid,
+              direction: "outgoing",
+              content: message || (file_url ? `[${messageType === "photo" ? "Photo" : "Document"}]` : ""),
+              message_type: messageType,
+              file_url: file_url || null,
+              file_name: file_name || null,
+              telegram_message_id: r.result?.result?.message_id || null,
+              group_chat_id: group_chat_id || null,
+            });
+          }
+        })
+      );
+
+      if (persistRows.length > 0) {
+        const { error: insertError } = await serviceClient.from("chat_messages").insert(persistRows);
+        if (insertError) console.error("Failed to persist group messages:", insertError);
       }
-      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-      const body: Record<string, string> = { chat_id: chatId, text: telegramText };
-      if (parse_mode) body.parse_mode = parse_mode;
-      tgResponse = await fetch(telegramUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      tgResult = await tgResponse.json();
+
+      const successCount = Object.values(results).filter((r: any) => r.ok).length;
+      return new Response(
+        JSON.stringify({ success: true, sent_to: successCount, total: targetBotIds.length, results }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    if (!tgResponse.ok) {
-      return new Response(JSON.stringify({ error: "Telegram API error", details: tgResult }), {
+    // Single bot message
+    const singleBotId = targetBotIds[0];
+    if (!BOT_MAP[singleBotId]) {
+      return new Response(JSON.stringify({ error: `Unknown bot_id: ${singleBotId}` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const contextSummary = await getCrossBotContext(serviceClient, singleBotId, userId);
+    const sendResult = await sendToBot(singleBotId, message, messageType, file_url || null, parse_mode || null, contextSummary);
+
+    if (!sendResult.ok) {
+      return new Response(JSON.stringify({ error: "Telegram API error", details: sendResult.error }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Persist message
     const { error: insertError } = await supabase.from("chat_messages").insert({
       user_id: userId,
-      bot_id: bot_id,
+      bot_id: singleBotId,
       direction: "outgoing",
       content: message || (file_url ? `[${messageType === "photo" ? "Photo" : "Document"}]` : ""),
       message_type: messageType,
       file_url: file_url || null,
       file_name: file_name || null,
-      telegram_message_id: tgResult.result?.message_id || null,
+      telegram_message_id: sendResult.result?.result?.message_id || null,
+      group_chat_id: group_chat_id || null,
     });
 
     if (insertError) {
       console.error("Failed to persist outgoing message:", insertError);
     }
 
-    return new Response(JSON.stringify({ success: true, bot_id, context_injected: !!contextSummary }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ success: true, bot_id: singleBotId, context_injected: !!contextSummary }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,

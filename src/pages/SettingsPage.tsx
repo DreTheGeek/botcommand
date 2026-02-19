@@ -5,12 +5,23 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
-import { bots } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, User, Bell, Monitor, Shield, ExternalLink, MessageCircle, Github, HardDrive, Workflow, Database, Send } from 'lucide-react';
+import { AlertTriangle, User, Bell, Monitor, Shield, ExternalLink, MessageCircle, Github, HardDrive, Workflow, Database, Send, Bot, Briefcase, Building2, Video, Code2, ShoppingBag, TrendingUp, Home, Search } from 'lucide-react';
+
+const ALL_BOTS = [
+  { id: 'optimus', name: 'Optimus Prime', route: '/bots/optimus', status: 'active', Icon: Bot },
+  { id: 'ana', name: 'Ana Sales', route: '/bots/ana', status: 'active', Icon: Briefcase },
+  { id: 'benny', name: 'Benny Business Maker', route: '/bots/benny', status: 'active', Icon: Building2 },
+  { id: 'carter', name: 'Carter Content', route: '/bots/carter', status: 'active', Icon: Video },
+  { id: 'cleah', name: 'Cleah Coding', route: '/bots/cleah', status: 'active', Icon: Code2 },
+  { id: 'deondre', name: 'Deondre Dropshipping', route: '/bots/deondre', status: 'active', Icon: ShoppingBag },
+  { id: 'rhianna', name: 'Rhianna Research', route: '/bots/rhianna', status: 'active', Icon: Search },
+  { id: 'ronnie', name: 'Ronnie Realty', route: '/bots/ronnie', status: 'active', Icon: Home },
+  { id: 'tammy', name: 'Tammy Trader', route: '/bots/trading', status: 'active', Icon: TrendingUp },
+];
 
 const telegramBots = [
   { id: 'ronnie', name: 'Ronnie Realty', color: 'text-[hsl(var(--nexus-success))]' },
@@ -157,10 +168,10 @@ export default function SettingsPage() {
         <Card>
           <CardHeader><CardTitle className="text-base flex items-center gap-2"><Shield className="h-4 w-4" />Bot Configuration</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {bots.map((b) => (
+            {ALL_BOTS.map((b) => (
               <div key={b.id} className="flex items-center justify-between p-2 rounded bg-muted/30 cursor-pointer hover:bg-muted/50" onClick={() => navigate(b.route)}>
                 <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${b.status === 'active' ? 'bg-[hsl(var(--nexus-success))]' : 'bg-[hsl(var(--nexus-warning))]'}`} />
+                  <div className="h-2 w-2 rounded-full bg-[hsl(var(--nexus-success))]" />
                   <span className="text-sm font-medium">{b.name}</span>
                 </div>
                 <Badge variant="outline" className="text-[10px]">Configure →</Badge>

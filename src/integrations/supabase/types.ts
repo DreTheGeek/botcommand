@@ -60,6 +60,7 @@ export type Database = {
           direction: string
           file_name: string | null
           file_url: string | null
+          group_chat_id: string | null
           id: string
           message_type: string
           telegram_message_id: number | null
@@ -72,6 +73,7 @@ export type Database = {
           direction: string
           file_name?: string | null
           file_url?: string | null
+          group_chat_id?: string | null
           id?: string
           message_type?: string
           telegram_message_id?: number | null
@@ -84,9 +86,42 @@ export type Database = {
           direction?: string
           file_name?: string | null
           file_url?: string | null
+          group_chat_id?: string | null
           id?: string
           message_type?: string
           telegram_message_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_group_chat_id_fkey"
+            columns: ["group_chat_id"]
+            isOneToOne: false
+            referencedRelation: "group_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_chats: {
+        Row: {
+          bot_ids: string[]
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          bot_ids: string[]
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          bot_ids?: string[]
+          created_at?: string
+          id?: string
+          name?: string
           user_id?: string
         }
         Relationships: []
