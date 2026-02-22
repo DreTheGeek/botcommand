@@ -10,8 +10,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
-import RonnieRealty from "./pages/bots/RonnieRealty";
-import AnaSales from "./pages/bots/AnaSales";
+import RandyRealty from "./pages/bots/RandyRealty";
+import SarahSales from "./pages/bots/SarahSales";
 import TradingBot from "./pages/bots/TradingBot";
 import RhiannaResearch from "./pages/bots/RhiannaResearch";
 import DeondreDropshipping from "./pages/bots/DeondreDropshipping";
@@ -51,8 +51,8 @@ const App = () => (
                       <Route path="/data" element={<RawData />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/chat" element={<ChatPage />} />
-                      <Route path="/bots/ronnie" element={<RonnieRealty />} />
-                      <Route path="/bots/ana" element={<AnaSales />} />
+                      <Route path="/bots/randy" element={<RandyRealty />} />
+                      <Route path="/bots/sarah" element={<SarahSales />} />
                       <Route path="/bots/trading" element={<TradingBot />} />
                       <Route path="/bots/rhianna" element={<RhiannaResearch />} />
                       <Route path="/bots/deondre" element={<DeondreDropshipping />} />

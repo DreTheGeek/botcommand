@@ -1,22 +1,23 @@
 import { motion } from 'framer-motion';
-import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2 } from 'lucide-react';
+import { Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2, BarChart3 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
 const BOT_DEFS: Record<string, { name: string; icon: string; description: string }> = {
-  ronnie: { name: 'Ronnie Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states' },
-  ana: { name: 'Ana Sales Analyst', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals' },
+  randy: { name: 'Randy Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states' },
+  sarah: { name: 'Sarah Sales', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals' },
   trading: { name: 'Tammy Trader', icon: 'TrendingUp', description: 'Executes day trades, swing trades, manages portfolio with strict risk limits' },
   rhianna: { name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them' },
   deondre: { name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day' },
   carter: { name: 'Carter Content', icon: 'Video', description: 'Creates viral content across YouTube, TikTok, X, Instagram, LinkedIn daily' },
-  optimus: { name: 'Optimus Prime', icon: 'Bot', description: 'Bot orchestrator — monitors all 9 bots and the shared knowledge base' },
+  optimus: { name: 'Optimus Prime', icon: 'Bot', description: 'Bot orchestrator — monitors all 10 bots and the shared knowledge base' },
   cleah: { name: 'Cleah Coding', icon: 'Code2', description: 'Software engineering expert for code review, debugging, and architecture' },
   benny: { name: 'Benny Business Maker', icon: 'Building2', description: 'Build, scale, and optimize businesses with actionable strategies' },
+  ava: { name: 'Ava Analyst', icon: 'BarChart3', description: 'Analytics & business intelligence — tracks KPIs, anomalies, and performance' },
 };
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2,
+  Home, Briefcase, TrendingUp, Search, ShoppingBag, Video, Bot, Code2, Building2, BarChart3,
 };
 
 interface Tab {

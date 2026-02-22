@@ -60,8 +60,9 @@ export function usePropertyDeals(limit = 100) {
   return useExternalTable('property_deals', { limit });
 }
 
-export function useDeals(limit = 100) {
-  return useExternalTable('deals', { limit });
+// Queries the pipeline table (Sarah Sales' active deals/pipeline)
+export function usePipeline(limit = 100) {
+  return useExternalTable('pipeline', { limit });
 }
 
 export function useTrades(limit = 200) {
@@ -82,4 +83,29 @@ export function useContentPosts(limit = 100) {
 
 export function useContentPerformance(limit = 100) {
   return useExternalTable('content_performance', { limit, orderBy: 'id', ascending: false });
+}
+
+// Additional hooks for bot-specific tables
+export function useProposals(limit = 100) {
+  return useExternalTable('proposals', { limit });
+}
+
+export function useDeals(limit = 100) {
+  return useExternalTable('deals', { limit });
+}
+
+export function useBotTasks(limit = 100) {
+  return useExternalTable('bot_tasks', { limit });
+}
+
+export function useBotActivityLog(limit = 100) {
+  return useExternalTable('bot_activity_log', { limit });
+}
+
+export function useDevTasks(limit = 100) {
+  return useExternalTable('dev_tasks', { limit });
+}
+
+export function useBugReports(limit = 100) {
+  return useExternalTable('bug_reports', { limit });
 }

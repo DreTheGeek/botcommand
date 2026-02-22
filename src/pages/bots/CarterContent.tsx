@@ -10,28 +10,31 @@ function EmptyState({ message }: { message: string }) {
 }
 
 const fmtNum = (n: number) => n.toLocaleString();
-const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString() : '—';
+const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString() : '\u2014';
+
+function getViews(p: any): number { return Number(p.impressions) || Number(p.views) || Number(p.view_count) || 0; }
+function getFollowers(p: any): number { return Number(p.followers_gained) || Number(p.followers) || 0; }
 
 function CalendarTab() {
   const { data: extContent } = useContentPosts();
   const items = (extContent || []) as any[];
 
   const platformColor = (platform: string) => {
-    switch (platform) {
-      case 'YouTube': return 'bg-destructive/10 text-destructive border-destructive/30';
-      case 'TikTok': return 'bg-primary/10 text-primary border-primary/30';
-      case 'X': return '';
-      case 'Instagram': return 'bg-[hsl(var(--nexus-purple))]/10 text-[hsl(var(--nexus-purple))] border-[hsl(var(--nexus-purple))]/30';
-      case 'LinkedIn': return 'bg-[hsl(var(--nexus-info))]/10 text-[hsl(var(--nexus-info))] border-[hsl(var(--nexus-info))]/30';
-      case 'Facebook': return 'bg-[hsl(var(--nexus-info))]/10 text-[hsl(var(--nexus-info))] border-[hsl(var(--nexus-info))]/30';
+    switch ((platform || '').toLowerCase()) {
+      case 'youtube': return 'bg-destructive/10 text-destructive border-destructive/30';
+      case 'tiktok': return 'bg-primary/10 text-primary border-primary/30';
+      case 'x': case 'twitter': return '';
+      case 'instagram': return 'bg-[hsl(var(--nexus-purple))]/10 text-[hsl(var(--nexus-purple))] border-[hsl(var(--nexus-purple))]/30';
+      case 'linkedin': case 'facebook': return 'bg-[hsl(var(--nexus-info))]/10 text-[hsl(var(--nexus-info))] border-[hsl(var(--nexus-info))]/30';
       default: return '';
     }
   };
 
   const statusColor = (status: string) => {
-    switch (status) {
-      case 'Scheduled': return 'bg-primary/10 text-primary border-primary/30';
-      case 'Published': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
+    const s = (status || '').toLowerCase();
+    switch (s) {
+      case 'scheduled': case 'ready': return 'bg-primary/10 text-primary border-primary/30';
+      case 'published': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
       default: return '';
     }
   };
@@ -41,23 +44,17 @@ function CalendarTab() {
       <CardContent className="p-0 overflow-x-auto">
         {items.length === 0 ? <EmptyState message="No content scheduled yet" /> : (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Platform</TableHead>
-                <TableHead>Scheduled</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Content</TableHead>
-              </TableRow>
-            </TableHeader>
+            <TableHeader><TableRow>
+              <TableHead>Title</TableHead><TableHead>Platform</TableHead><TableHead>Scheduled</TableHead><TableHead>Status</TableHead><TableHead>Content</TableHead>
+            </TableRow></TableHeader>
             <TableBody>
               {items.map((c: any) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.title || '—'}</TableCell>
-                  <TableCell><Badge variant="outline" className={platformColor(c.platform || '')}>{c.platform || '—'}</Badge></TableCell>
-                  <TableCell className="text-sm">{fmtDate(c.scheduled_time || c.created_at || '')}</TableCell>
-                  <TableCell><Badge variant="outline" className={statusColor(c.status || '')}>{c.status || '—'}</Badge></TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{c.content || c.description || '—'}</TableCell>
+                  <TableCell className="font-medium">{c.title || '\u2014'}</TableCell>
+                  <TableCell><Badge variant="outline" className={platformColor(c.platform || '')}>{c.platform || '\u2014'}</Badge></TableCell>
+                  <TableCell className="text-sm">{fmtDate(c.scheduled_time || c.scheduled_for || c.created_at || '')}</TableCell>
+                  <TableCell><Badge variant="outline" className={statusColor(c.status || '')}>{c.status || '\u2014'}</Badge></TableCell>
+                  <TableCell className="text-sm text-muted-foreground max-w-[300px] truncate">{c.content || c.description || c.notes || '\u2014'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -71,11 +68,9 @@ function CalendarTab() {
 function PerformanceTab() {
   const { data: extPerf } = useContentPerformance();
   const perfData = (extPerf || []) as any[];
-  const totalViews = perfData.reduce((s, p: any) => s + (Number(p.views) || Number(p.view_count) || 0), 0);
-  const totalFollowers = perfData.reduce((s, p: any) => s + (Number(p.followers) || 0), 0);
-  const avgEngagement = perfData.length > 0
-    ? perfData.reduce((s, p: any) => s + (Number(p.engagement_rate) || 0), 0) / perfData.length
-    : 0;
+  const totalViews = perfData.reduce((s, p: any) => s + getViews(p), 0);
+  const totalFollowers = perfData.reduce((s, p: any) => s + getFollowers(p), 0);
+  const avgEngagement = perfData.length > 0 ? perfData.reduce((s, p: any) => s + (Number(p.engagement_rate) || 0), 0) / perfData.length : 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -95,20 +90,13 @@ function PlatformStatsTab() {
       {perfData.length === 0 && <EmptyState message="No platform stats yet" />}
       {perfData.map((p: any) => (
         <Card key={p.id || p.platform}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">{p.platform || '—'}</CardTitle>
-          </CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-base">{p.platform || '\u2014'}</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div><span className="text-muted-foreground">Followers:</span> <span className="font-medium">{fmtNum(Number(p.followers) || 0)}</span></div>
-              <div><span className="text-muted-foreground">Views:</span> <span className="font-medium">{fmtNum(Number(p.views) || Number(p.view_count) || 0)}</span></div>
+              <div><span className="text-muted-foreground">Followers:</span> <span className="font-medium">{fmtNum(getFollowers(p))}</span></div>
+              <div><span className="text-muted-foreground">Views:</span> <span className="font-medium">{fmtNum(getViews(p))}</span></div>
               <div><span className="text-muted-foreground">Engagement:</span> <span className="font-medium">{p.engagement_rate || 0}%</span></div>
-              <div>
-                <span className="text-muted-foreground">Trend:</span>{' '}
-                <span className={`font-medium ${(Number(p.trend) || 0) >= 0 ? 'text-[hsl(var(--nexus-success))]' : 'text-[hsl(var(--nexus-urgent))]'}`}>
-                  {(Number(p.trend) || 0) >= 0 ? '+' : ''}{p.trend || 0}%
-                </span>
-              </div>
+              <div><span className="text-muted-foreground">Likes:</span> <span className="font-medium">{fmtNum(Number(p.likes) || 0)}</span></div>
             </div>
           </CardContent>
         </Card>
@@ -126,21 +114,15 @@ function ContentLibraryTab() {
       <CardContent className="p-0 overflow-x-auto">
         {items.length === 0 ? <EmptyState message="No content in library yet" /> : (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Platform</TableHead>
-                <TableHead>Post Date</TableHead>
-                <TableHead className="text-right">Views</TableHead>
-                <TableHead className="text-right">Engagement</TableHead>
-              </TableRow>
-            </TableHeader>
+            <TableHeader><TableRow>
+              <TableHead>Title</TableHead><TableHead>Platform</TableHead><TableHead>Post Date</TableHead><TableHead className="text-right">Views</TableHead><TableHead className="text-right">Engagement</TableHead>
+            </TableRow></TableHeader>
             <TableBody>
               {items.map((c: any) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.title || '—'}</TableCell>
-                  <TableCell><Badge variant="outline">{c.platform || '—'}</Badge></TableCell>
-                  <TableCell>{fmtDate(c.post_date || c.created_at || '')}</TableCell>
+                  <TableCell className="font-medium">{c.title || '\u2014'}</TableCell>
+                  <TableCell><Badge variant="outline">{c.platform || '\u2014'}</Badge></TableCell>
+                  <TableCell>{fmtDate(c.post_date || c.published_at || c.created_at || '')}</TableCell>
                   <TableCell className="text-right">{fmtNum(Number(c.views) || Number(c.view_count) || 0)}</TableCell>
                   <TableCell className="text-right">{c.engagement_rate || 0}%</TableCell>
                 </TableRow>
@@ -175,18 +157,9 @@ function SettingsTab() {
       <Card>
         <CardHeader><CardTitle className="text-base">Bot Controls</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Bot Active</span>
-            <Switch defaultChecked />
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Auto-Schedule</span>
-            <Switch defaultChecked />
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Cross-Post</span>
-            <Switch defaultChecked />
-          </div>
+          <div className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Bot Active</span><Switch defaultChecked /></div>
+          <div className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Auto-Schedule</span><Switch defaultChecked /></div>
+          <div className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Cross-Post</span><Switch defaultChecked /></div>
         </CardContent>
       </Card>
     </div>

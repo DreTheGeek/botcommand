@@ -19,7 +19,10 @@ function OverviewTab() {
   const { data: extDeals } = usePropertyDeals();
   const deals = (extDeals || []) as any[];
 
-  const hotDeals = deals.filter((d) => d.status === 'Hot Deal' || d.status === 'hot').length;
+  const hotDeals = deals.filter((d) => {
+    const s = (d.status || '').toLowerCase();
+    return s === 'hot deal' || s === 'hot' || s === 'watching';
+  }).length;
   const totalProfit = deals.reduce((s, d) => s + (Number(d.net_profit) || 0), 0);
   const states = new Set(deals.map((d) => d.state).filter(Boolean));
 
@@ -66,9 +69,11 @@ function DealPipelineTab() {
   const deals = (extDeals || []) as any[];
 
   const statusColor = (status: string) => {
-    switch (status) {
-      case 'Hot Deal': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
-      case 'Warm': return 'bg-primary/10 text-primary border-primary/30';
+    const s = (status || '').toLowerCase();
+    switch (s) {
+      case 'hot deal': case 'hot': case 'watching': return 'bg-[hsl(var(--nexus-success))]/10 text-[hsl(var(--nexus-success))] border-[hsl(var(--nexus-success))]/30';
+      case 'warm': case 'upcoming': return 'bg-primary/10 text-primary border-primary/30';
+      case 'won': case 'bidding': return 'bg-[hsl(var(--nexus-warning))]/10 text-[hsl(var(--nexus-warning))] border-[hsl(var(--nexus-warning))]/30';
       default: return '';
     }
   };
@@ -100,11 +105,11 @@ function DealPipelineTab() {
             <TableBody>
               {deals.map((d: any) => (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium">{d.address}</TableCell>
+                  <TableCell className="font-medium">{d.address || d.property_address || '—'}</TableCell>
                   <TableCell>{d.county}</TableCell>
                   <TableCell>{d.state}</TableCell>
-                  <TableCell>{fmt.date(d.sale_date || '')}</TableCell>
-                  <TableCell className="text-right">{fmt.money(Number(d.min_bid || 0))}</TableCell>
+                  <TableCell>{fmt.date(d.sale_date || d.auction_date || '')}</TableCell>
+                  <TableCell className="text-right">{fmt.money(Number(d.min_bid || d.opening_bid || 0))}</TableCell>
                   <TableCell className="text-right text-[hsl(var(--nexus-success))]">{fmt.money(Number(d.net_profit || 0))}</TableCell>
                   <TableCell className="text-center">
                     <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${scoreColor(d.deal_score || 0)}`}>
@@ -124,21 +129,21 @@ function DealPipelineTab() {
 
 function CalendarTab() {
   const { data: extDeals } = usePropertyDeals();
-  const deals = ((extDeals || []) as any[]).filter((p) => p.sale_date);
+  const deals = ((extDeals || []) as any[]).filter((p) => p.sale_date || p.auction_date);
 
   return (
     <Card>
       <CardHeader><CardTitle className="text-base">Upcoming Tax Sale Dates</CardTitle></CardHeader>
       <CardContent className="space-y-3">
         {deals.length === 0 && <EmptyState message="No upcoming sales found" />}
-        {deals.sort((a, b) => (a.sale_date || '').localeCompare(b.sale_date || '')).map((d) => (
+        {deals.sort((a, b) => (a.sale_date || a.auction_date || '').localeCompare(b.sale_date || b.auction_date || '')).map((d) => (
           <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
             <div>
-              <p className="font-medium text-sm">{d.address}</p>
+              <p className="font-medium text-sm">{d.address || d.property_address}</p>
               <p className="text-xs text-muted-foreground">{d.county}, {d.state}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium">{fmt.date(d.sale_date)}</p>
+              <p className="text-sm font-medium">{fmt.date(d.sale_date || d.auction_date)}</p>
               <Badge variant="outline" className="text-[10px]">{d.status}</Badge>
             </div>
           </div>
@@ -167,7 +172,6 @@ function AnalyticsTab() {
 }
 
 function PurchasesTab() {
-  // Purchases would come from an external table; show empty state for now
   return (
     <Card>
       <CardContent className="p-0 overflow-x-auto">
@@ -217,9 +221,9 @@ function SettingsTab() {
   );
 }
 
-export default function RonnieRealty() {
+export default function RandyRealty() {
   return (
-    <BotPageLayout botId="ronnie" tabs={[
+    <BotPageLayout botId="randy" tabs={[
       { value: 'overview', label: 'Overview', content: <OverviewTab /> },
       { value: 'pipeline', label: 'Deal Pipeline', content: <DealPipelineTab /> },
       { value: 'calendar', label: 'Calendar', content: <CalendarTab /> },

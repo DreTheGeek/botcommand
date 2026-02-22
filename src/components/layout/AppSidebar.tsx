@@ -41,13 +41,13 @@ const mainNav = [
 
 const botNav = [
   { title: 'Optimus Prime', url: '/bots/optimus', icon: Bot },
-  { title: 'Ana Sales Analyst', url: '/bots/ana', icon: Briefcase },
+  { title: 'Sarah Sales', url: '/bots/sarah', icon: Briefcase },
   { title: 'Benny Business Maker', url: '/bots/benny', icon: Building2 },
   { title: 'Carter Content', url: '/bots/carter', icon: Video },
   { title: 'Cleah Coding', url: '/bots/cleah', icon: Code2 },
   { title: 'Deondre Dropshipping', url: '/bots/deondre', icon: ShoppingBag },
+  { title: 'Randy Realty', url: '/bots/randy', icon: Home },
   { title: 'Rhianna Research', url: '/bots/rhianna', icon: Search },
-  { title: 'Ronnie Realty', url: '/bots/ronnie', icon: Home },
   { title: 'Tammy Trader', url: '/bots/trading', icon: TrendingUp },
 ];
 
