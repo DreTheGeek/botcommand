@@ -60,7 +60,7 @@ export function usePropertyDeals(limit = 100) {
   return useExternalTable('property_deals', { limit });
 }
 
-// Queries the pipeline table (Sarah Sales' active deals/pipeline)
+// Queries the pipeline table (active deals/pipeline)
 export function usePipeline(limit = 100) {
   return useExternalTable('pipeline', { limit });
 }

@@ -9,9 +9,9 @@ const fmt = (n: number) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
 
 const sources = [
-  { label: 'Property Deals', key: 'property' as const, color: 'text-nexus-info', route: '/bots/ronnie' },
+  { label: 'Property Deals', key: 'property' as const, color: 'text-nexus-info', route: '/bots/randy' },
   { label: 'Trading Profits', key: 'trading' as const, color: 'text-nexus-success', route: '/bots/trading' },
-  { label: 'Sales/Consulting', key: 'sales' as const, color: 'text-accent', route: '/bots/ana' },
+  { label: 'Sales/Consulting', key: 'sales' as const, color: 'text-accent', route: '/bots/sarah' },
   { label: 'Dropshipping', key: 'dropshipping' as const, color: 'text-nexus-warning', route: '/bots/deondre' },
 ];
 
@@ -22,7 +22,6 @@ export function RevenueDashboard() {
   const revenueData = externalRevenue || [];
   const total = revenueData.reduce((s: number, r: any) => s + (Number(r.amount) || Number(r.revenue) || 0), 0);
 
-  // Break down by source if data has a source/category field
   const getSourceRevenue = (key: string) => {
     return revenueData
       .filter((r: any) => (r.source || r.category || '').toLowerCase().includes(key))

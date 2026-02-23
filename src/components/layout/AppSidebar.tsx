@@ -6,14 +6,8 @@ import {
   Search,
   Database,
   Settings,
-  Briefcase,
-  TrendingUp,
-  ShoppingBag,
-  Video,
   MessageCircle,
-  Bot,
-  Code2,
-  Building2,
+  Crown,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -40,15 +34,7 @@ const mainNav = [
 ];
 
 const botNav = [
-  { title: 'Optimus Prime', url: '/bots/optimus', icon: Bot },
-  { title: 'Sarah Sales', url: '/bots/sarah', icon: Briefcase },
-  { title: 'Benny Business Maker', url: '/bots/benny', icon: Building2 },
-  { title: 'Carter Content', url: '/bots/carter', icon: Video },
-  { title: 'Cleah Coding', url: '/bots/cleah', icon: Code2 },
-  { title: 'Deondre Dropshipping', url: '/bots/deondre', icon: ShoppingBag },
-  { title: 'Randy Realty', url: '/bots/randy', icon: Home },
-  { title: 'Rhianna Research', url: '/bots/rhianna', icon: Search },
-  { title: 'Tammy Trader', url: '/bots/trading', icon: TrendingUp },
+  { title: 'Ava - Chief of Staff', url: '/bots/ava', icon: Crown },
 ];
 
 export function AppSidebar() {

@@ -13,13 +13,9 @@ const priorityColors: Record<string, string> = {
 };
 
 const BOT_NAMES: Record<string, string> = {
-  ronnie: 'Ronnie Realty',
-  ana: 'Ana Sales',
-  tammy: 'Tammy Trader',
-  rhianna: 'Rhianna Research',
-  deondre: 'Deondre Dropshipping',
-  carter: 'Carter Content',
-  trading: 'Tammy Trader',
+  ava: 'Ava - Chief of Staff',
+  'ava-analyst': 'Ava - Chief of Staff',
+  system: 'System',
 };
 
 function formatTimeAgo(dateStr: string) {
