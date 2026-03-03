@@ -7,7 +7,14 @@ import {
   Database,
   Settings,
   MessageCircle,
+  Shield,
   Crown,
+  Briefcase,
+  Hammer,
+  Video,
+  Code,
+  TrendingUp,
+  ShoppingBag,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -34,7 +41,16 @@ const mainNav = [
 ];
 
 const botNav = [
-  { title: 'Ava - Chief of Staff', url: '/bots/ava', icon: Crown },
+  { title: 'Optimus Prime', url: '/bots/optimus', icon: Shield },
+  { title: 'Ava Analyst', url: '/bots/ava', icon: Crown },
+  { title: 'Sarah Sales', url: '/bots/sarah', icon: Briefcase },
+  { title: 'Rhianna Research', url: '/bots/rhianna', icon: Search },
+  { title: 'Benny Builder', url: '/bots/benny', icon: Hammer },
+  { title: 'Randy Realty', url: '/bots/randy', icon: Home },
+  { title: 'Carter Content', url: '/bots/carter', icon: Video },
+  { title: 'Cleah Coding', url: '/bots/cleah', icon: Code },
+  { title: 'Tammy Trader', url: '/bots/tammy', icon: TrendingUp },
+  { title: 'Deondre Dropshipping', url: '/bots/deondre', icon: ShoppingBag },
 ];
 
 export function AppSidebar() {

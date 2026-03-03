@@ -35,23 +35,30 @@ export interface Task {
 }
 
 export const bots: Bot[] = [
-  { id: 'ronnie', name: 'Ronnie Realty', icon: 'Home', description: 'Finds $40K+ profit tax deed properties across 31 states', status: 'active', keyMetric: '3 hot deals found today', route: '/bots/ronnie' },
-  { id: 'ana', name: 'Ana Sales Analyst', icon: 'Briefcase', description: 'Generates proposals, business plans, closes $25K-$85K deals', status: 'active', keyMetric: '$275K in pipeline', route: '/bots/ana' },
-  { id: 'trading', name: 'Tammy Trader', icon: 'TrendingUp', description: 'Executes day trades, swing trades, manages portfolio with strict risk limits', status: 'active', keyMetric: '+$142 today (78% win rate)', route: '/bots/trading' },
-  { id: 'rhianna', name: 'Rhianna Research', icon: 'Search', description: 'Tracks trends, competitors, opportunities before anyone else sees them', status: 'attention', keyMetric: '5 opportunities detected', route: '/bots/rhianna' },
-  { id: 'deondre', name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'Tests products, manages suppliers, scales winners to $10K+/day', status: 'active', keyMetric: '2 products scaling (3.4 ROAS)', route: '/bots/deondre' },
-  { id: 'carter', name: 'Carter Content', icon: 'Video', description: 'Creates viral content across YouTube, TikTok, X, Instagram, LinkedIn daily', status: 'active', keyMetric: '87K views this week', route: '/bots/carter' },
+  { id: 'optimus', name: 'Optimus Prime', icon: 'Shield', description: 'Gateway coordinator — routes messages, monitors all bots, manages system health', status: 'active', keyMetric: '10/10 bots online', route: '/bots/optimus' },
+  { id: 'ava', name: 'Ava Analyst', icon: 'Crown', description: 'Analytics engine — KPI tracking, reports, anomaly detection, performance dashboards', status: 'active', keyMetric: '23 KPIs tracked', route: '/bots/ava' },
+  { id: 'sarah', name: 'Sarah Sales', icon: 'Briefcase', description: 'Sales pipeline — proposals, outreach, deal management, closes $25K-$85K deals', status: 'active', keyMetric: '$275K in pipeline', route: '/bots/sarah' },
+  { id: 'rhianna', name: 'Rhianna Research', icon: 'Search', description: 'Market intelligence — trends, competitors, opportunities, research reports', status: 'attention', keyMetric: '5 opportunities detected', route: '/bots/rhianna' },
+  { id: 'benny', name: 'Benny Builder', icon: 'Hammer', description: 'Project builder — websites, apps, automations, client deliverables', status: 'active', keyMetric: '3 projects in progress', route: '/bots/benny' },
+  { id: 'randy', name: 'Randy Realty', icon: 'Home', description: 'Real estate — tax deed analysis, property deals, auction tracking across 31 states', status: 'active', keyMetric: '3 hot deals found today', route: '/bots/randy' },
+  { id: 'carter', name: 'Carter Content', icon: 'Video', description: 'Content creator — YouTube, TikTok, X, Instagram, LinkedIn content automation', status: 'active', keyMetric: '87K views this week', route: '/bots/carter' },
+  { id: 'cleah', name: 'Cleah Coding', icon: 'Code', description: 'Code specialist — bug fixes, feature development, code reviews, technical ops', status: 'active', keyMetric: '12 PRs merged this week', route: '/bots/cleah' },
+  { id: 'tammy', name: 'Tammy Trader', icon: 'TrendingUp', description: 'Trading bot — day trades, swing trades, portfolio management, strict risk limits', status: 'active', keyMetric: '+$142 today (78% win rate)', route: '/bots/tammy' },
+  { id: 'deondre', name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'E-commerce — product testing, supplier management, ad campaigns, scaling winners', status: 'active', keyMetric: '2 products scaling (3.4 ROAS)', route: '/bots/deondre' },
 ];
 
 export const notifications: Notification[] = [
-  { id: 1, priority: 'urgent', botId: 'ronnie', message: 'Hot deal: 3BR in Tampa, FL - $62K profit potential', timeAgo: '2 minutes ago', read: false },
-  { id: 2, priority: 'action', botId: 'ana', message: 'ABC Company viewed proposal 3 times - follow up recommended', timeAgo: '15 minutes ago', read: false },
-  { id: 3, priority: 'win', botId: 'trading', message: 'NVDA swing trade closed +$89 (2.3R)', timeAgo: '1 hour ago', read: false },
+  { id: 1, priority: 'urgent', botId: 'randy', message: 'Hot deal: 3BR in Tampa, FL - $62K profit potential', timeAgo: '2 minutes ago', read: false },
+  { id: 2, priority: 'action', botId: 'sarah', message: 'ABC Company viewed proposal 3 times - follow up recommended', timeAgo: '15 minutes ago', read: false },
+  { id: 3, priority: 'win', botId: 'tammy', message: 'NVDA swing trade closed +$89 (2.3R)', timeAgo: '1 hour ago', read: false },
   { id: 4, priority: 'info', botId: 'rhianna', message: 'New trend detected: AI automation consulting demand up 340%', timeAgo: '2 hours ago', read: true },
   { id: 5, priority: 'action', botId: 'deondre', message: 'Product #47 hit 3.8 ROAS - ready to scale', timeAgo: '3 hours ago', read: true },
   { id: 6, priority: 'win', botId: 'carter', message: 'TikTok post went viral: 45K views in 4 hours', timeAgo: '4 hours ago', read: true },
-  { id: 7, priority: 'urgent', botId: 'trading', message: 'Daily loss limit at 71% - monitor closely', timeAgo: '30 minutes ago', read: false },
-  { id: 8, priority: 'info', botId: 'carter', message: 'Weekly content report ready for review', timeAgo: '5 hours ago', read: true },
+  { id: 7, priority: 'urgent', botId: 'tammy', message: 'Daily loss limit at 71% - monitor closely', timeAgo: '30 minutes ago', read: false },
+  { id: 8, priority: 'info', botId: 'ava', message: 'Weekly analytics report generated - revenue up 23%', timeAgo: '5 hours ago', read: true },
+  { id: 9, priority: 'win', botId: 'benny', message: 'Client portal v2 deployed successfully', timeAgo: '6 hours ago', read: true },
+  { id: 10, priority: 'action', botId: 'cleah', message: '3 PRs awaiting review - 2 are high priority', timeAgo: '1 hour ago', read: false },
+  { id: 11, priority: 'info', botId: 'optimus', message: 'All 10 bots healthy - daily reset completed at 4 AM', timeAgo: '8 hours ago', read: true },
 ];
 
 export const revenue: Revenue = {
@@ -61,11 +68,13 @@ export const revenue: Revenue = {
 };
 
 export const tasks: Task[] = [
-  { id: 1, description: 'Review 3 hot property deals', botId: 'ronnie', priority: 'urgent', completed: false },
-  { id: 2, description: 'Follow up with ABC Company proposal', botId: 'ana', priority: 'action', completed: false },
-  { id: 3, description: 'Analyze AAPL trade setup', botId: 'trading', priority: 'action', completed: false },
+  { id: 1, description: 'Review 3 hot property deals', botId: 'randy', priority: 'urgent', completed: false },
+  { id: 2, description: 'Follow up with ABC Company proposal', botId: 'sarah', priority: 'action', completed: false },
+  { id: 3, description: 'Analyze AAPL trade setup', botId: 'tammy', priority: 'action', completed: false },
   { id: 4, description: 'Research competitor XYZ move', botId: 'rhianna', priority: 'info', completed: false },
   { id: 5, description: 'Post scheduled TikTok at 6 PM', botId: 'carter', priority: 'win', completed: false },
+  { id: 6, description: 'Review Cleah\'s 3 pending PRs', botId: 'cleah', priority: 'action', completed: false },
+  { id: 7, description: 'Deploy client dashboard update', botId: 'benny', priority: 'action', completed: false },
 ];
 
 export const quickStats = {
@@ -75,7 +84,216 @@ export const quickStats = {
   systemHealth: 'operational' as const,
 };
 
-// ============ RONNIE REALTY DATA ============
+// ============ OPTIMUS PRIME DATA ============
+
+export interface SystemStatus {
+  botId: string;
+  botName: string;
+  status: 'online' | 'degraded' | 'offline';
+  uptime: string;
+  lastActivity: string;
+  messagesHandled: number;
+  avgResponseTime: string;
+}
+
+export interface SystemLog {
+  id: number;
+  timestamp: string;
+  level: 'info' | 'warn' | 'error';
+  source: string;
+  message: string;
+}
+
+export const systemStatuses: SystemStatus[] = [
+  { botId: 'optimus', botName: 'Optimus Prime', status: 'online', uptime: '99.9%', lastActivity: '2 min ago', messagesHandled: 1247, avgResponseTime: '1.2s' },
+  { botId: 'ava', botName: 'Ava Analyst', status: 'online', uptime: '99.8%', lastActivity: '5 min ago', messagesHandled: 892, avgResponseTime: '2.1s' },
+  { botId: 'sarah', botName: 'Sarah Sales', status: 'online', uptime: '99.7%', lastActivity: '12 min ago', messagesHandled: 634, avgResponseTime: '1.8s' },
+  { botId: 'rhianna', botName: 'Rhianna Research', status: 'degraded', uptime: '97.2%', lastActivity: '18 min ago', messagesHandled: 428, avgResponseTime: '3.4s' },
+  { botId: 'benny', botName: 'Benny Builder', status: 'online', uptime: '99.5%', lastActivity: '8 min ago', messagesHandled: 312, avgResponseTime: '2.5s' },
+  { botId: 'randy', botName: 'Randy Realty', status: 'online', uptime: '99.9%', lastActivity: '3 min ago', messagesHandled: 567, avgResponseTime: '1.5s' },
+  { botId: 'carter', botName: 'Carter Content', status: 'online', uptime: '99.6%', lastActivity: '15 min ago', messagesHandled: 723, avgResponseTime: '1.9s' },
+  { botId: 'cleah', botName: 'Cleah Coding', status: 'online', uptime: '99.4%', lastActivity: '6 min ago', messagesHandled: 445, avgResponseTime: '2.8s' },
+  { botId: 'tammy', botName: 'Tammy Trader', status: 'online', uptime: '99.8%', lastActivity: '1 min ago', messagesHandled: 1089, avgResponseTime: '0.8s' },
+  { botId: 'deondre', botName: 'Deondre Dropshipping', status: 'online', uptime: '99.3%', lastActivity: '10 min ago', messagesHandled: 398, avgResponseTime: '2.2s' },
+];
+
+export const systemLogs: SystemLog[] = [
+  { id: 1, timestamp: '2026-03-02 14:32:15', level: 'info', source: 'gateway', message: 'Daily session reset completed — all 10 agents refreshed' },
+  { id: 2, timestamp: '2026-03-02 14:28:41', level: 'info', source: 'tammy-trader', message: 'NVDA swing trade closed +$89 — logged to trades table' },
+  { id: 3, timestamp: '2026-03-02 14:15:22', level: 'warn', source: 'rhianna-research', message: 'Brave Search API rate limit approaching — throttling requests' },
+  { id: 4, timestamp: '2026-03-02 13:58:10', level: 'info', source: 'sarah-sales', message: 'Proposal sent to ABC Manufacturing — $85K deal value' },
+  { id: 5, timestamp: '2026-03-02 13:42:05', level: 'info', source: 'randy-realty', message: 'New hot deal detected: 1423 Oak Dr, Tampa — 95 score' },
+  { id: 6, timestamp: '2026-03-02 13:30:00', level: 'info', source: 'carter-content', message: 'TikTok post published — "Automation hack #47"' },
+  { id: 7, timestamp: '2026-03-02 12:45:33', level: 'error', source: 'rhianna-research', message: 'Firecrawl scrape failed for competitor-xyz.com — retrying' },
+  { id: 8, timestamp: '2026-03-02 12:30:15', level: 'info', source: 'benny-builder', message: 'Client portal v2 deployed to production — all tests passing' },
+  { id: 9, timestamp: '2026-03-02 12:15:00', level: 'info', source: 'cleah-coding', message: 'PR #47 merged: refactor auth middleware — 3 files changed' },
+  { id: 10, timestamp: '2026-03-02 11:50:22', level: 'info', source: 'deondre-dropshipping', message: 'LED Sunset Lamp Pro hit 4.2x ROAS — scaling budget to $500/day' },
+  { id: 11, timestamp: '2026-03-02 11:30:00', level: 'info', source: 'ava-analyst', message: 'Weekly report generated — revenue up 23% MoM' },
+  { id: 12, timestamp: '2026-03-02 07:00:00', level: 'info', source: 'ava-analyst', message: 'Morning briefing delivered to Telegram' },
+];
+
+// ============ AVA ANALYST DATA ============
+
+export interface KpiSnapshot {
+  id: number;
+  name: string;
+  value: string;
+  target: string;
+  trend: 'up' | 'down' | 'stable';
+  category: string;
+  change: string;
+}
+
+export interface AnalyticsReport {
+  id: number;
+  title: string;
+  type: string;
+  date: string;
+  summary: string;
+  status: 'delivered' | 'draft' | 'scheduled';
+}
+
+export interface Anomaly {
+  id: number;
+  metric: string;
+  expected: string;
+  actual: string;
+  deviation: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  detected: string;
+}
+
+export const kpiSnapshots: KpiSnapshot[] = [
+  { id: 1, name: 'Monthly Revenue', value: '$54,847', target: '$200,000', trend: 'up', category: 'Revenue', change: '+23%' },
+  { id: 2, name: 'Pipeline Value', value: '$275,000', target: '$500,000', trend: 'up', category: 'Sales', change: '+15%' },
+  { id: 3, name: 'Win Rate', value: '31%', target: '25%', trend: 'up', category: 'Sales', change: '+4%' },
+  { id: 4, name: 'Trading P&L (MTD)', value: '+$2,847', target: '+$5,000', trend: 'up', category: 'Trading', change: '+18%' },
+  { id: 5, name: 'Trading Win Rate', value: '78%', target: '55%', trend: 'up', category: 'Trading', change: '+3%' },
+  { id: 6, name: 'E-Commerce Revenue', value: '$52,000', target: '$60,000', trend: 'up', category: 'E-Commerce', change: '+8%' },
+  { id: 7, name: 'ROAS (Avg)', value: '3.4x', target: '3.0x', trend: 'up', category: 'E-Commerce', change: '+0.3x' },
+  { id: 8, name: 'Content Engagement', value: '6.8%', target: '5.0%', trend: 'up', category: 'Content', change: '+1.2%' },
+  { id: 9, name: 'Hot Property Deals', value: '4', target: '3', trend: 'up', category: 'Real Estate', change: '+1' },
+  { id: 10, name: 'Response Time', value: '1.8s', target: '3.0s', trend: 'down', category: 'System', change: '-0.4s' },
+  { id: 11, name: 'Bot Uptime', value: '99.6%', target: '99.0%', trend: 'stable', category: 'System', change: '+0.1%' },
+  { id: 12, name: 'Active Prospects', value: '8', target: '10', trend: 'up', category: 'Sales', change: '+2' },
+];
+
+export const analyticsReports: AnalyticsReport[] = [
+  { id: 1, title: 'Weekly Performance Report', type: 'Weekly', date: '2026-03-02', summary: 'Revenue up 23% MoM. Pipeline healthy at $275K. 2 products scaling. 78% trading win rate.', status: 'delivered' },
+  { id: 2, title: 'Monthly Revenue Analysis', type: 'Monthly', date: '2026-02-28', summary: 'Feb total: $54,847. Dropshipping led at $52K. Trading contributed $2.8K. Sales pipeline growing.', status: 'delivered' },
+  { id: 3, title: 'Competitor Movement Report', type: 'Ad-hoc', date: '2026-02-27', summary: 'AutomateHQ launched free tier. FlowBot Pro changed pricing. 3 new entrants identified.', status: 'delivered' },
+  { id: 4, title: 'Q1 2026 Forecast', type: 'Quarterly', date: '2026-03-05', summary: 'Projected Q1 revenue: $180K-$220K. Key driver: e-commerce scaling + 2 enterprise deals closing.', status: 'scheduled' },
+  { id: 5, title: 'Daily Morning Briefing', type: 'Daily', date: '2026-03-02', summary: '3 hot deals, 1 proposal viewed 3x, TikTok viral post. Trading P&L +$142 today.', status: 'delivered' },
+];
+
+export const anomalies: Anomaly[] = [
+  { id: 1, metric: 'Daily Trading Loss', expected: '<$100', actual: '$142', deviation: '+42%', severity: 'medium', detected: '30 min ago' },
+  { id: 2, metric: 'Rhianna Response Time', expected: '<2.0s', actual: '3.4s', deviation: '+70%', severity: 'high', detected: '18 min ago' },
+  { id: 3, metric: 'TikTok Views Spike', expected: '~5K/day', actual: '45K in 4hrs', deviation: '+800%', severity: 'low', detected: '4 hours ago' },
+  { id: 4, metric: 'Email Open Rate Drop', expected: '35%', actual: '22%', deviation: '-37%', severity: 'medium', detected: '2 hours ago' },
+];
+
+// ============ BENNY BUILDER DATA ============
+
+export interface Project {
+  id: number;
+  name: string;
+  client: string;
+  status: 'In Progress' | 'Completed' | 'Planning' | 'On Hold';
+  progress: number;
+  deadline: string;
+  tech: string[];
+  value: number;
+}
+
+export interface Deployment {
+  id: number;
+  project: string;
+  environment: string;
+  status: 'success' | 'failed' | 'deploying';
+  timestamp: string;
+  version: string;
+}
+
+export const projects: Project[] = [
+  { id: 1, name: 'HVAC Client Portal v2', client: 'City Wide HVAC', status: 'In Progress', progress: 78, deadline: '2026-03-15', tech: ['React', 'Supabase', 'Tailwind'], value: 15000 },
+  { id: 2, name: 'AI Voice Agent Setup', client: 'Metro Plumbing', status: 'In Progress', progress: 45, deadline: '2026-03-22', tech: ['Vapi', 'Node.js', 'Twilio'], value: 8500 },
+  { id: 3, name: 'CRM Automation System', client: 'Premier Electric', status: 'Planning', progress: 10, deadline: '2026-04-01', tech: ['n8n', 'Supabase', 'Resend'], value: 12000 },
+  { id: 4, name: 'Kaldr Tech Website Redesign', client: 'Internal', status: 'In Progress', progress: 62, deadline: '2026-03-10', tech: ['Next.js', 'Framer Motion', 'Vercel'], value: 0 },
+  { id: 5, name: 'E-commerce Storefront', client: 'Sunset Lamps Co', status: 'Completed', progress: 100, deadline: '2026-02-20', tech: ['Shopify', 'Liquid', 'Custom Theme'], value: 5500 },
+  { id: 6, name: 'Booking System Integration', client: 'FastFix AC', status: 'On Hold', progress: 30, deadline: '2026-04-15', tech: ['Cal.com', 'Zapier', 'ServiceTitan'], value: 6000 },
+];
+
+export const deployments: Deployment[] = [
+  { id: 1, project: 'HVAC Client Portal v2', environment: 'Production', status: 'success', timestamp: '2026-03-02 12:30', version: 'v2.4.1' },
+  { id: 2, project: 'Kaldr Tech Website', environment: 'Staging', status: 'success', timestamp: '2026-03-02 10:15', version: 'v3.1.0-beta' },
+  { id: 3, project: 'AI Voice Agent', environment: 'Development', status: 'deploying', timestamp: '2026-03-02 14:00', version: 'v1.2.0' },
+  { id: 4, project: 'CRM Automation', environment: 'Development', status: 'success', timestamp: '2026-03-01 16:45', version: 'v0.3.0' },
+  { id: 5, project: 'E-commerce Storefront', environment: 'Production', status: 'success', timestamp: '2026-02-20 09:00', version: 'v1.0.0' },
+  { id: 6, project: 'HVAC Client Portal v2', environment: 'Staging', status: 'failed', timestamp: '2026-03-01 11:20', version: 'v2.4.0' },
+];
+
+// ============ CLEAH CODING DATA ============
+
+export interface PullRequest {
+  id: number;
+  title: string;
+  repo: string;
+  status: 'open' | 'merged' | 'closed';
+  author: string;
+  reviewers: string[];
+  filesChanged: number;
+  additions: number;
+  deletions: number;
+  created: string;
+}
+
+export interface BugReport {
+  id: number;
+  title: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  status: 'open' | 'in-progress' | 'resolved';
+  repo: string;
+  reported: string;
+  assignee: string;
+}
+
+export interface CodeMetric {
+  name: string;
+  value: string;
+  trend: 'up' | 'down' | 'stable';
+  description: string;
+}
+
+export const pullRequests: PullRequest[] = [
+  { id: 47, title: 'Refactor auth middleware for JWT validation', repo: 'theavengers', status: 'merged', author: 'cleah', reviewers: ['benny'], filesChanged: 3, additions: 142, deletions: 87, created: '2026-03-02' },
+  { id: 48, title: 'Add rate limiting to API endpoints', repo: 'theavengers', status: 'open', author: 'cleah', reviewers: ['benny'], filesChanged: 5, additions: 210, deletions: 15, created: '2026-03-02' },
+  { id: 49, title: 'Fix Supabase connection pool exhaustion', repo: 'theavengers', status: 'open', author: 'cleah', reviewers: [], filesChanged: 2, additions: 38, deletions: 12, created: '2026-03-01' },
+  { id: 50, title: 'Implement webhook retry with exponential backoff', repo: 'theavengers', status: 'open', author: 'cleah', reviewers: ['benny'], filesChanged: 4, additions: 186, deletions: 42, created: '2026-03-01' },
+  { id: 45, title: 'Add TypeScript strict mode to all modules', repo: 'botcommand', status: 'merged', author: 'cleah', reviewers: ['benny'], filesChanged: 12, additions: 89, deletions: 34, created: '2026-02-28' },
+  { id: 44, title: 'Optimize Supabase query batching', repo: 'theavengers', status: 'merged', author: 'cleah', reviewers: ['benny'], filesChanged: 6, additions: 245, deletions: 178, created: '2026-02-27' },
+  { id: 43, title: 'Fix memory leak in conversation history', repo: 'theavengers', status: 'merged', author: 'cleah', reviewers: [], filesChanged: 1, additions: 22, deletions: 8, created: '2026-02-26' },
+  { id: 42, title: 'Add error boundary components', repo: 'botcommand', status: 'merged', author: 'cleah', reviewers: ['benny'], filesChanged: 4, additions: 156, deletions: 0, created: '2026-02-25' },
+];
+
+export const bugReports: BugReport[] = [
+  { id: 1, title: 'Context window overflow crashing Ava', severity: 'critical', status: 'resolved', repo: 'theavengers', reported: '2026-03-02', assignee: 'cleah' },
+  { id: 2, title: 'Rate limiter blocks legitimate requests', severity: 'high', status: 'in-progress', repo: 'theavengers', reported: '2026-03-01', assignee: 'cleah' },
+  { id: 3, title: 'Dashboard loading slow on mobile', severity: 'medium', status: 'open', repo: 'botcommand', reported: '2026-02-28', assignee: 'cleah' },
+  { id: 4, title: 'Stale cache on pipeline queries', severity: 'low', status: 'open', repo: 'theavengers', reported: '2026-02-27', assignee: 'benny' },
+  { id: 5, title: 'Telegram webhook timeout on large messages', severity: 'high', status: 'resolved', repo: 'theavengers', reported: '2026-02-25', assignee: 'cleah' },
+];
+
+export const codeMetrics: CodeMetric[] = [
+  { name: 'PRs Merged (This Week)', value: '12', trend: 'up', description: 'Up from 8 last week' },
+  { name: 'Open Issues', value: '4', trend: 'down', description: 'Down from 7 last week' },
+  { name: 'Test Coverage', value: '84%', trend: 'up', description: 'Target: 80%' },
+  { name: 'Build Success Rate', value: '96%', trend: 'stable', description: '1 failed deploy this week' },
+  { name: 'Avg PR Review Time', value: '2.4 hrs', trend: 'down', description: 'Down from 4.1 hrs' },
+  { name: 'Lines Changed', value: '1,847', trend: 'up', description: 'Across 8 PRs' },
+];
+
+// ============ RANDY REALTY DATA ============
 
 export interface Property {
   id: number;
@@ -125,7 +343,7 @@ export const purchases: Purchase[] = [
   { id: 4, address: '789 Valley Dr, Charlotte, NC', purchasePrice: 28000, repairs: 0, soldPrice: null, actualProfit: null, status: 'Owned', purchaseDate: '2026-01-15' },
 ];
 
-// ============ ANA SALES DATA ============
+// ============ SARAH SALES DATA ============
 
 export interface Prospect {
   id: number;
@@ -326,7 +544,7 @@ export interface ContentIdea {
 }
 
 export const dailyBrief: DailyBrief = {
-  date: '2026-02-15',
+  date: '2026-03-02',
   topInsights: [
     'AI automation consulting demand surged 340% in the last 30 days based on Google Trends data',
     'Three competitors launched new pricing tiers this week targeting mid-market',
@@ -471,20 +689,20 @@ export interface ContentLibraryItem {
 }
 
 export const scheduledContent: ScheduledContent[] = [
-  { id: 1, title: 'How I Built 6 AI Bots', platform: 'YouTube', scheduledTime: '2026-02-16 10:00', status: 'Scheduled', content: 'Full tutorial walkthrough' },
-  { id: 2, title: 'Automation hack #47', platform: 'TikTok', scheduledTime: '2026-02-15 18:00', status: 'Scheduled', content: '60-sec quick tip' },
-  { id: 3, title: 'Thread: AI trends 2026', platform: 'X', scheduledTime: '2026-02-15 14:00', status: 'Published', content: '12-tweet thread' },
-  { id: 4, title: 'Behind the scenes', platform: 'Instagram', scheduledTime: '2026-02-16 12:00', status: 'Scheduled', content: 'Carousel post' },
-  { id: 5, title: 'Sales automation case study', platform: 'LinkedIn', scheduledTime: '2026-02-17 09:00', status: 'Draft', content: 'Long-form article' },
-  { id: 6, title: 'Weekly wins recap', platform: 'Facebook', scheduledTime: '2026-02-16 15:00', status: 'Scheduled', content: 'Video update' },
-  { id: 7, title: 'Day in the life of AI bots', platform: 'TikTok', scheduledTime: '2026-02-17 18:00', status: 'Draft', content: 'POV video' },
-  { id: 8, title: 'Dropshipping results reveal', platform: 'YouTube', scheduledTime: '2026-02-18 10:00', status: 'Draft', content: 'Revenue breakdown' },
-  { id: 9, title: '3 tools you need', platform: 'Instagram', scheduledTime: '2026-02-17 12:00', status: 'Scheduled', content: 'Reel' },
-  { id: 10, title: 'Hot take: AI in business', platform: 'X', scheduledTime: '2026-02-16 08:00', status: 'Scheduled', content: 'Thread' },
+  { id: 1, title: 'How I Built 10 AI Bots', platform: 'YouTube', scheduledTime: '2026-03-03 10:00', status: 'Scheduled', content: 'Full tutorial walkthrough' },
+  { id: 2, title: 'Automation hack #47', platform: 'TikTok', scheduledTime: '2026-03-02 18:00', status: 'Scheduled', content: '60-sec quick tip' },
+  { id: 3, title: 'Thread: AI trends 2026', platform: 'X', scheduledTime: '2026-03-02 14:00', status: 'Published', content: '12-tweet thread' },
+  { id: 4, title: 'Behind the scenes', platform: 'Instagram', scheduledTime: '2026-03-03 12:00', status: 'Scheduled', content: 'Carousel post' },
+  { id: 5, title: 'Sales automation case study', platform: 'LinkedIn', scheduledTime: '2026-03-04 09:00', status: 'Draft', content: 'Long-form article' },
+  { id: 6, title: 'Weekly wins recap', platform: 'Facebook', scheduledTime: '2026-03-03 15:00', status: 'Scheduled', content: 'Video update' },
+  { id: 7, title: 'Day in the life of AI bots', platform: 'TikTok', scheduledTime: '2026-03-04 18:00', status: 'Draft', content: 'POV video' },
+  { id: 8, title: 'Dropshipping results reveal', platform: 'YouTube', scheduledTime: '2026-03-05 10:00', status: 'Draft', content: 'Revenue breakdown' },
+  { id: 9, title: '3 tools you need', platform: 'Instagram', scheduledTime: '2026-03-04 12:00', status: 'Scheduled', content: 'Reel' },
+  { id: 10, title: 'Hot take: AI in business', platform: 'X', scheduledTime: '2026-03-03 08:00', status: 'Scheduled', content: 'Thread' },
 ];
 
 export const platformStats: PlatformStat[] = [
-  { platform: 'YouTube', followers: 12400, views: 45000, engagementRate: 6.2, topPost: 'How I Built 6 AI Bots', trend: 12 },
+  { platform: 'YouTube', followers: 12400, views: 45000, engagementRate: 6.2, topPost: 'How I Built 10 AI Bots', trend: 12 },
   { platform: 'TikTok', followers: 28900, views: 187000, engagementRate: 8.5, topPost: 'Automation hack #42', trend: 24 },
   { platform: 'X', followers: 8200, views: 32000, engagementRate: 4.1, topPost: 'AI trends thread', trend: 8 },
   { platform: 'Instagram', followers: 15600, views: 67000, engagementRate: 5.8, topPost: 'Behind the scenes reel', trend: 15 },
@@ -493,7 +711,7 @@ export const platformStats: PlatformStat[] = [
 ];
 
 export const contentLibrary: ContentLibraryItem[] = [
-  { id: 1, title: 'How I Built 6 AI Bots That Make Money', platform: 'YouTube', postDate: '2026-02-10', views: 12400, engagement: 8.2 },
+  { id: 1, title: 'How I Built 10 AI Bots That Make Money', platform: 'YouTube', postDate: '2026-02-10', views: 12400, engagement: 8.2 },
   { id: 2, title: 'This automation hack saved me 20 hours', platform: 'TikTok', postDate: '2026-02-09', views: 45000, engagement: 12.1 },
   { id: 3, title: 'AI Trends Thread 2026', platform: 'X', postDate: '2026-02-08', views: 8900, engagement: 5.4 },
   { id: 4, title: 'Day in the Life: AI Entrepreneur', platform: 'Instagram', postDate: '2026-02-07', views: 15200, engagement: 7.8 },
@@ -515,16 +733,18 @@ export const monthlyRevenue = [
 ];
 
 export const calendarEvents = [
-  { id: 1, title: 'Hillsborough Tax Sale', date: '2026-03-15', botId: 'ronnie', type: 'auction' },
-  { id: 2, title: 'ABC Manufacturing Follow-up', date: '2026-02-16', botId: 'ana', type: 'meeting' },
-  { id: 3, title: 'AAPL Earnings Report', date: '2026-02-20', botId: 'trading', type: 'event' },
-  { id: 4, title: 'Competitor Report Due', date: '2026-02-17', botId: 'rhianna', type: 'deadline' },
-  { id: 5, title: 'Product #47 Scale Decision', date: '2026-02-16', botId: 'deondre', type: 'decision' },
-  { id: 6, title: 'YouTube Video Publish', date: '2026-02-16', botId: 'carter', type: 'content' },
-  { id: 7, title: 'Fulton County Sale', date: '2026-03-20', botId: 'ronnie', type: 'auction' },
-  { id: 8, title: 'TechFlow Demo', date: '2026-02-18', botId: 'ana', type: 'meeting' },
-  { id: 9, title: 'Monthly P&L Review', date: '2026-02-28', botId: 'trading', type: 'review' },
-  { id: 10, title: 'TikTok Content Batch', date: '2026-02-19', botId: 'carter', type: 'content' },
+  { id: 1, title: 'Hillsborough Tax Sale', date: '2026-03-15', botId: 'randy', type: 'auction' },
+  { id: 2, title: 'ABC Manufacturing Follow-up', date: '2026-03-03', botId: 'sarah', type: 'meeting' },
+  { id: 3, title: 'AAPL Earnings Report', date: '2026-03-20', botId: 'tammy', type: 'event' },
+  { id: 4, title: 'Competitor Report Due', date: '2026-03-04', botId: 'rhianna', type: 'deadline' },
+  { id: 5, title: 'Product #47 Scale Decision', date: '2026-03-03', botId: 'deondre', type: 'decision' },
+  { id: 6, title: 'YouTube Video Publish', date: '2026-03-03', botId: 'carter', type: 'content' },
+  { id: 7, title: 'Fulton County Sale', date: '2026-03-20', botId: 'randy', type: 'auction' },
+  { id: 8, title: 'TechFlow Demo', date: '2026-03-05', botId: 'sarah', type: 'meeting' },
+  { id: 9, title: 'Monthly P&L Review', date: '2026-03-28', botId: 'tammy', type: 'review' },
+  { id: 10, title: 'TikTok Content Batch', date: '2026-03-06', botId: 'carter', type: 'content' },
+  { id: 11, title: 'Deploy Portal v2', date: '2026-03-15', botId: 'benny', type: 'deadline' },
+  { id: 12, title: 'Code Review Sprint', date: '2026-03-04', botId: 'cleah', type: 'deadline' },
 ];
 
 export const fmt = {

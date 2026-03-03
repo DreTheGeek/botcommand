@@ -1,14 +1,33 @@
 import { motion } from 'framer-motion';
-import { Crown } from 'lucide-react';
+import { Crown, Home, Video, Code, TrendingUp, ShoppingBag, Shield, BarChart3, Briefcase, Search, Hammer } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
 const BOT_DEFS: Record<string, { name: string; icon: string; description: string }> = {
-  ava: { name: 'Ava - Chief of Staff', icon: 'Crown', description: 'Unified AI Chief of Staff - Intelligence, Revenue, Customer Service, Documents, Analytics, and Database operations' },
+  optimus: { name: 'Optimus Prime', icon: 'Shield', description: 'Gateway coordinator — routes messages, monitors all bots, manages system health' },
+  ava: { name: 'Ava Analyst', icon: 'BarChart3', description: 'Analytics engine — KPI tracking, reports, anomaly detection, performance dashboards' },
+  sarah: { name: 'Sarah Sales', icon: 'Briefcase', description: 'Sales pipeline — proposals, outreach, deal management, closes $25K-$85K deals' },
+  rhianna: { name: 'Rhianna Research', icon: 'Search', description: 'Market intelligence — trends, competitors, opportunities, research reports' },
+  benny: { name: 'Benny Builder', icon: 'Hammer', description: 'Project builder — websites, apps, automations, client deliverables' },
+  randy: { name: 'Randy Realty', icon: 'Home', description: 'Real estate — tax deed analysis, property deals, auction tracking across 31 states' },
+  carter: { name: 'Carter Content', icon: 'Video', description: 'Content creator — YouTube, TikTok, X, Instagram, LinkedIn content automation' },
+  cleah: { name: 'Cleah Coding', icon: 'Code', description: 'Code specialist — bug fixes, feature development, code reviews, technical ops' },
+  tammy: { name: 'Tammy Trader', icon: 'TrendingUp', description: 'Trading bot — day trades, swing trades, portfolio management, strict risk limits' },
+  deondre: { name: 'Deondre Dropshipping', icon: 'ShoppingBag', description: 'E-commerce — product testing, supplier management, ad campaigns, scaling winners' },
 };
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Crown,
+  Home,
+  Video,
+  Code,
+  TrendingUp,
+  ShoppingBag,
+  Shield,
+  BarChart3,
+  Briefcase,
+  Search,
+  Hammer,
 };
 
 interface Tab {
